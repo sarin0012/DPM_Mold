@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบควบคุม TPM แม่พิมพ์พลาสติก</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+        body { font-family: 'Prompt', sans-serif; background-color: #f3f4f6; overflow-x: hidden; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .pm-month-cb:checked + span { background-color: #dbeafe; color: #1e40af; border-color: #3b82f6; font-weight: bold; }
+        .radio-ok:checked + label { background-color: #10b981; color: white; border-color: #10b981; }
+        .radio-ng:checked + label { background-color: #ef4444; color: white; border-color: #ef4444; }
+        .plan-badge { background-color: #f0f7ff; color: #0066cc; border: 1px solid #cce4ff; padding: 1px 4px; border-radius: 4px; font-size: 9px; margin-right: 2px; margin-bottom: 2px; display: inline-block; font-weight: 600; }
+        .year-label { font-size: 8px; color: #9ca3af; font-weight: bold; text-transform: uppercase; margin-right: 4px; min-width: 45px; display: inline-block; }
+        
+        .table-container {
+            height: calc(100vh - 350px);
+            min-height: 500px;
+            overflow-y: auto;
+            position: relative;
+            border-radius: 0.5rem;
+        }
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f9fafb;
+            box-shadow: 0 1px 0 #e5e7eb;
+        }
+        .animate-pulse-red {
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Dropdown Animation */
+        #formDropdown {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        #formDropdown.open {
+            max-height: 1500px;
+            opacity: 1;
+            transform: translateY(0);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800 relative">
+
+    <!-- 🚨 URGENT ALARM -->
+    <div id="urgentAlarmBox" class="hidden bg-red-600 text-white p-3 shadow-lg flex items-center justify-between sticky top-0 z-[100] animate-pulse-red">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-exclamation-triangle text-xl animate-bounce"></i>
+            <div>
+                <div class="font-bold text-sm">พบแม่พิมพ์ถึงกำหนด TPM!</div>
+                <div id="urgentCountText" class="text-[10px] opacity-90">มีรายการถึงกำหนดทั้งหมด 0 รายการ</div>
+            </div>
+        </div>
+        <button onclick="scrollToUrgent()" class="bg-white text-red-600 px-4 py-1 rounded-full text-xs font-bold shadow-md hover:bg-gray-100 transition">ดูรายการที่ถึงกำหนด</button>
+    </div>
+
+    <!-- 🟢 ADMIN VIEW -->
+    <div id="adminInterface">
+        <nav class="bg-blue-600 text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="font-semibold text-xl flex items-center"><i class="fas fa-cubes mr-2"></i> Mold TPM Management</div>
+                <div class="text-xs bg-blue-700 px-3 py-1 rounded-full font-bold uppercase tracking-tighter text-white">Admin Mode</div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                    <div class="text-gray-400 text-[10px] font-bold uppercase">ทั้งหมด</div>
+                    <div id="statTotal" class="text-xl font-bold">0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500">
+                    <div class="text-red-500 text-[10px] font-bold uppercase">ถึงกำหนด</div>
+                    <div id="statLate" class="text-xl font-bold text-red-600">0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                    <div class="text-yellow-600 text-[10px] font-bold uppercase">ใกล้ถึง</div>
+                    <div id="statNear" class="text-xl font-bold text-yellow-600">0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+                    <div class="text-green-500 text-[10px] font-bold uppercase">ปกติ</div>
+                    <div id="statNormal" class="text-xl font-bold text-green-600">0</div>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 mb-6 border-b border-gray-200 pb-2 overflow-x-auto">
+                <button onclick="switchTab('manage')" id="btnTabManage" class="px-4 py-2 font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md whitespace-nowrap">จัดการข้อมูล</button>
+                <button onclick="switchTab('dashboard')" id="btnTabDashboard" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700 rounded-md whitespace-nowrap">ภาพรวม (Timeline)</button>
+            </div>
+
+            <!-- Manage View -->
+            <div id="manageView" class="w-full">
+                
+                <!-- 🔽 DROPDOWN FORM SECTION (COLLAPSIBLE) -->
+                <div id="formDropdown" class="bg-white rounded-lg shadow-md border-t-4 border-blue-500">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-6 border-b pb-2">
+                            <h2 class="text-lg font-bold text-blue-600 uppercase">
+                                <i class="fas fa-edit mr-2"></i> ข้อมูลแม่พิมพ์ 
+                                <span id="formModeBadge" class="hidden ml-2 text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">โหมดแก้ไข</span>
+                            </h2>
+                            <button onclick="closeDropdownForm()" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times-circle text-xl"></i></button>
+                        </div>
+                        
+                        <form id="moldForm" onsubmit="submitData(event, 'UPDATE')">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- Col 1: ข้อมูลพื้นฐาน -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">รหัสแม่พิมพ์ (ASSET NO.) *</label>
+                                        <input type="text" id="moldId" required class="w-full border border-gray-300 rounded-md px-3 py-2 uppercase focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">ชื่อโมล (TOOL NAME) *</label>
+                                        <input type="text" id="partName" required class="w-full border border-gray-300 rounded-md px-3 py-2 font-bold text-gray-800 outline-none">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div><label class="block text-[11px] font-medium text-gray-700 mb-1">PIC ดูแล</label><input type="text" id="responsiblePerson" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"></div>
+                                        <div><label class="block text-[11px] font-medium text-gray-700 mb-1">Vendor</label><input type="text" id="vendor" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm uppercase"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Col 2: การตั้งค่าการผลิต -->
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div><label class="block text-[11px] font-medium text-gray-700 mb-1">Cavity</label><input type="number" id="cavity" value="1" min="1" oninput="calculateDaily()" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"></div>
+                                        <div><label class="block text-[11px] font-medium text-gray-700 mb-1">Volume/ปี</label><input type="number" id="yearlyVolume" value="0" min="0" oninput="calculateDaily()" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"></div>
+                                    </div>
+                                    <div class="bg-blue-50 text-blue-800 text-[11px] p-2 rounded-md border border-blue-100 flex justify-between items-center font-bold">
+                                        <span>บวก Shot อัตโนมัติ/วัน:</span><strong id="dailyAutoText" class="text-sm">0</strong>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div><label class="block text-[11px] font-bold text-gray-700 mb-1">Shot สะสม</label><input type="number" id="currentShots" value="0" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"></div>
+                                        <div><label class="block text-[11px] font-bold text-gray-700 mb-1">เป้าหมาย PM</label><input type="number" id="targetShots" value="30000" class="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"></div>
+                                    </div>
+                                    <div><label class="block text-xs font-bold text-gray-700 mb-1">กำหนดวัน PM ถัดไป</label><input type="date" id="nextPmDate" required class="w-full border border-gray-300 rounded-md px-3 py-2"></div>
+                                </div>
+
+                                <!-- Col 3: แผนงานรายปี -->
+                                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                    <label class="text-[10px] font-bold text-gray-600 uppercase mb-2 block text-center">วางแผน TPM รายปี</label>
+                                    <select id="planYearSelector" class="w-full border rounded text-xs py-1.5 px-2 bg-white mb-2" onchange="changePlanYear()"></select>
+                                    <div class="grid grid-cols-6 gap-1 text-[9px] text-center" id="monthCheckboxGroup"></div>
+                                    
+                                    <div class="mt-8 flex gap-2">
+                                        <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold shadow-md hover:bg-blue-700 transition">บันทึก</button>
+                                        <button type="button" onclick="closeDropdownForm()" class="px-4 py-2 text-gray-500 font-bold text-xs">ยกเลิก</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="alertBox" class="mt-4 hidden p-3 rounded-md text-sm text-center font-bold"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 🛒 Main Data Table -->
+                <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-gray-600 flex flex-col h-fit">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-lg font-bold">ฐานข้อมูลแม่พิมพ์</h2>
+                            <button onclick="openAddForm()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md transition flex items-center gap-1">
+                                <i class="fas fa-plus"></i> เพิ่มแม่พิมพ์ใหม่
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <select id="filterVendorManage" onchange="renderTable()" class="border border-gray-300 rounded text-xs py-1.5 px-2"><option value="">ทุก Vendor</option></select>
+                            <select id="filterStatusManage" onchange="renderTable()" class="border border-gray-300 rounded text-xs py-1.5 px-2">
+                                <option value="">ทุกสถานะ</option><option value="LATE">🔴 ถึงกำหนด</option><option value="NEAR">🟡 ใกล้ถึง</option><option value="NORMAL">🟢 ปกติ</option>
+                            </select>
+                            <button onclick="fetchData()" class="text-xs bg-gray-100 px-3 py-1.5 rounded border font-bold hover:bg-gray-200 transition"><i class="fas fa-sync-alt"></i> รีเฟรช</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container border">
+                        <table id="mainTable" class="min-w-full bg-white text-sm">
+                            <thead class="bg-gray-50 text-gray-500 font-bold border-b text-[10px] uppercase">
+                                <tr>
+                                    <th class="py-3 px-4 text-center w-12">No.</th>
+                                    <th class="py-3 px-4 text-left">ชื่อโมล / Mold ID / แผน TPM</th>
+                                    <th class="py-3 px-4 text-left">สถานะ</th>
+                                    <th class="py-3 px-4 text-center">ประวัติล่าสุด</th>
+                                    <th class="py-3 px-4 text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-[10px] text-gray-400 flex justify-between items-center"><span id="rowCountLabel">0 รายการ</span></div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: Dashboard -->
+            <div id="dashboardView" class="hidden bg-white rounded-lg shadow-md p-6 border-t-4 border-purple-500">
+                <div class="flex items-center justify-between mb-4 border-b pb-4">
+                    <h2 class="text-lg font-semibold text-purple-700 font-bold">แผนบำรุงรักษาแม่พิมพ์ประจำปี</h2>
+                    <div class="flex gap-2">
+                        <select id="filterVendorDash" onchange="renderDashboard()" class="border border-gray-300 rounded text-xs py-1 px-2 font-bold"><option value="">ทุก Vendor</option></select>
+                        <select id="dashboardYearSelector" class="border border-gray-300 rounded text-xs py-1 px-2 font-bold" onchange="renderDashboard()"></select>
+                    </div>
+                </div>
+                <div class="table-container border" style="height: auto; max-height: 600px;">
+                    <table class="min-w-full border-collapse border border-gray-200 text-[10px]">
+                        <thead class="bg-gray-100 font-bold uppercase sticky top-0 z-10">
+                            <tr>
+                                <th class="py-2 px-2 border border-gray-300 text-center w-10 bg-gray-100">No.</th>
+                                <th class="py-2 px-2 border border-gray-300 text-left min-w-[200px] bg-gray-100">ชื่อโมล (Mold ID) / Vendor</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ม.ค.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ก.พ.</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">มี.ค.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">เม.ย.</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">พ.ค.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">มิ.ย.</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ก.ค.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ส.ค.</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ก.ย.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ต.ค.</th>
+                                <th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">พ.ย.</th><th class="py-2 border border-gray-300 text-center w-12 bg-gray-100">ธ.ค.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔵 SHARED FORM INTERFACE (FULL SCREEN) -->
+    <div id="sharedFormInterface" class="hidden min-h-screen bg-gray-100 p-4 pb-12"></div>
+
+    <!-- 🛠️ TPM ACTION MODAL (POPUP) -->
+    <div id="tpmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div id="tpmModalContent" class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden max-h-[95vh] flex flex-col border-t-8 border-orange-500 animate-in fade-in">
+            <div class="bg-orange-500 text-white px-4 py-3 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg"><i class="fas fa-tools mr-2"></i>บันทึกงาน TPM</h3>
+                <button onclick="closeModal()" id="closeModalBtn" class="text-white hover:text-gray-200 transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <form id="tpmActionForm" onsubmit="submitModalAction(event)" class="p-6 overflow-y-auto">
+                <div class="mb-4 bg-gray-50 p-4 rounded-xl border border-orange-100">
+                    <div class="text-center mb-4">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">ชื่อโมล (SPECIAL TOOLS NAME)</span>
+                        <h2 id="modalPartNameDisplay" class="text-2xl font-bold text-blue-800 leading-tight">...</h2>
+                        <div class="flex justify-center gap-2 mt-2">
+                            <span class="bg-white border text-[10px] px-2 py-0.5 rounded font-bold text-gray-500 uppercase">ID: <span id="modalMoldIdDisplay" class="text-gray-700">...</span></span>
+                            <span class="bg-white border border-purple-200 text-[10px] px-2 py-0.5 rounded font-bold text-purple-600 uppercase">VND: <span id="modalVendorDisplay">...</span></span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 border-t border-gray-200 pt-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">วันที่ดำเนินการ *</label>
+                            <input type="date" id="modalActionDate" required class="w-full bg-transparent border-b-2 border-orange-200 focus:border-orange-500 outline-none font-bold text-blue-700 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">ผู้รับผิดชอบ *</label>
+                            <input type="text" id="modalResponsiblePerson" required class="w-full bg-transparent border-b-2 border-orange-200 focus:border-orange-500 outline-none font-bold text-gray-800 text-sm" placeholder="ระบุชื่อช่าง">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-3 border-l-4 border-orange-400 pl-2">รายการตรวจสอบ 9 ข้อ (Page 1)</label>
+                    <div class="bg-gray-50 rounded-xl border border-gray-200 divide-y divide-gray-100" id="checklistContainer"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-2">รายละเอียดงานที่ทำ *</label>
+                    <textarea id="modalPmDetails" rows="2" required class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-orange-500 text-sm outline-none" placeholder="ซ่อม ล้าง หรือแก้ไขจุดไหน..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                        <label class="block text-[10px] font-bold text-blue-600 mb-1 uppercase">📸 รูปถ่ายหน้างาน</label>
+                        <input type="file" id="modalImageFile" accept="image/*" class="w-full text-[10px]">
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-xl border border-orange-100">
+                        <label class="block text-[10px] font-bold text-orange-600 mb-1 uppercase">🗓️ กำหนด PM ถัดไป</label>
+                        <input type="date" id="modalNextPmDate" required class="w-full bg-transparent border-b border-orange-300 font-bold text-sm outline-none">
+                    </div>
+                </div>
+
+                <input type="hidden" id="modalMoldIdHidden">
+                <button type="submit" id="modalSubmitBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-2xl shadow-xl transition-all flex justify-center items-center gap-2 text-lg">
+                    <i class="fas fa-save"></i> บันทึกข้อมูล TPM
+                </button>
+            </form>
+            
+            <div id="sharedSuccessMsg" class="hidden p-12 text-center">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"><i class="fas fa-check"></i></div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">บันทึกข้อมูลเรียบร้อยแล้ว!</h2>
+                <p class="text-gray-500 text-sm">ขอบคุณสำหรับรายงานครับ</p>
+                <button onclick="location.reload()" class="mt-6 text-orange-600 font-bold text-sm hover:underline">ทำรายการถัดไป</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden border-t-8 border-blue-500 max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center shrink-0">
+                <div><h4 id="histMoldId" class="text-xl font-bold text-blue-800 leading-none"></h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Timeline Log</p></div>
+                <button onclick="closeHistory()" class="text-gray-400 hover:text-gray-600 transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1 bg-gray-100 space-y-4" id="histContent"></div>
+            <div class="p-4 border-t bg-white shrink-0"><button onclick="closeHistory()" class="w-full bg-gray-800 text-white py-2 rounded-md text-sm font-bold">ตกลง</button></div>
+        </div>
+    </div>
+
+    <div id="copyToast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-xs font-medium hidden z-[100] shadow-2xl animate-bounce"><i class="fas fa-check-circle text-green-400 mr-2"></i> คัดลอกลิงก์แชร์แล้ว!</div>
+
+    <script>
+        // 🟢 CONFIGURATION & CONSTANTS
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbynPc65CjlAFAjW28VH1PbHqjxVZTWkxVzOnbxPDbF8hWpUiNGJSeonQdQ_l_gis4EraA/exec"; 
+        
+        const MONTH_NAMES_TH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        const CHECKLIST_ITEMS = [
+            { title: "1. ชิ้นงานสุดท้ายหลังการผลิต", std: "ต้องไม่เป็นรอยและมีครีบ" },
+            { title: "2. จุดยึดติดต่างๆ ของแม่พิมพ์", std: "SCREW ต้องยึดแน่น, ไม่ขาด, ร่องประแจต้องไม่ชำรุด" },
+            { title: "3. การหล่อลื่น GUIDE POST, EJECTOR PIN และ SLIDE", std: "แม่พิมพ์ ปิด-เปิดต้องคล่องตัวไม่ติดขัดระหว่างเคลื่อนที่เข้าออก" },
+            { title: "4. ตรวจเช็ครูน้ำหล่อเย็น", std: "รูน้ำไม่อุดตัน และไม่มีรอยรั่ว" },
+            { title: "5. เช็ค SPRING (Return/Slide)", std: "ไม่แตกหัก ไม่คดงอเสียรูป" },
+            { title: "6. เช็ค EJECTOR PIN", std: "ต้องไม่มีรอยไหม้ไม่คดงอและไม่หัก วิ่งเข้า-ออกคล่องตัว" },
+            { title: "7. สภาพของ GUIDE POST & BUSH, ANGULAR PIN", std: "ไม่สึกหรอ ไม่หลวม และต้องมีจาระบีชโลมไว้" },
+            { title: "8. เช็ค คราบสนิมหน้า แม่พิมพ์", std: "ไม่มีคราบสนิมทั้งด้าน CORE และ CAVITY" },
+            { title: "9. ความสะอาดของแม่พิมพ์", std: "สภาพทั่วไปต้องสะอาด" }
+        ];
+
+        let allMoldsData = {}; 
+        let rawMoldsList = []; 
+        let currentEditingPlan = {}; 
+        let currentPlanYear = "";
+        let isSharedMode = false;
+
+        // 🟢 CORE UTILITIES
+        function parsePmMonths(str) {
+            if (!str) return {};
+            if (typeof str === 'object' && !Array.isArray(str)) return str;
+            try { let obj = JSON.parse(str); if (obj && typeof obj === 'object') return obj; } catch(e) {}
+            const months = String(str).replace(/[\[\]]/g, '').split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
+            if (months.length > 0) return { [new Date().getFullYear()]: months };
+            return {};
+        }
+
+        function getMonthYearFromValue(val) {
+            if (!val) return null;
+            let strVal = String(val).trim();
+            let dateOnly = strVal.split(/[ T]/)[0];
+            let parts = dateOnly.split(/[-/]/);
+            if (parts.length >= 3) {
+                let p0 = parseInt(parts[0]), p1 = parseInt(parts[1]), p2 = parseInt(parts[2]);
+                let y, m;
+                if (p0 > 1000) { y = p0; m = p1 - 1; } else if (p2 > 1000) { y = p2; m = p1 - 1; } else return null;
+                if (y > 2500) y -= 543; return { month: m, year: y };
+            }
+            return null;
+        }
+
+        function calculateMoldPriority(r) {
+            const cur = parseInt(r.currentShots) || 0;
+            const tar = parseInt(r.targetShots) || 30000;
+            if (cur >= tar) return "LATE";
+            let info = getMonthYearFromValue(r.nextPmDate);
+            if (!info) return "NORMAL";
+            const today = new Date();
+            const monthDiff = (info.year - today.getFullYear()) * 12 + (info.month - today.getMonth());
+            if (monthDiff <= 0) return "LATE";
+            if (monthDiff === 1) return "NEAR";
+            return "NORMAL";
+        }
+
+        function getNextPlannedDateFromDB(pmPlanStr) {
+            const now = new Date(), currYear = now.getFullYear(), currMonth = now.getMonth() + 1;
+            const plan = parsePmMonths(pmPlanStr);
+            const thisYearPlanned = (plan[currYear] || []).filter(m => m > currMonth).sort((a,b) => a-b);
+            if (thisYearPlanned.length > 0) return `${currYear}-${String(thisYearPlanned[0]).padStart(2, '0')}-01`;
+            const nextYear = currYear + 1;
+            const nextYearPlanned = (plan[nextYear] || []).sort((a,b) => a-b);
+            if (nextYearPlanned.length > 0) return `${nextYear}-${String(nextYearPlanned[0]).padStart(2, '0')}-01`;
+            return `${currYear}-${String(currMonth).padStart(2, '0')}-01`;
+        }
+
+        function calculateDaily() {
+            const c = parseInt(document.getElementById('cavity')?.value) || 1;
+            const v = parseInt(document.getElementById('yearlyVolume')?.value) || 0;
+            const daily = Math.ceil((v / c) / 300);
+            const el = document.getElementById('dailyAutoText');
+            if (el) el.innerText = daily.toLocaleString();
+        }
+
+        function loadCheckboxesForYear() {
+            const planned = currentEditingPlan[currentPlanYear] || [];
+            document.querySelectorAll('.pm-month-cb').forEach(cb => {
+                cb.checked = planned.includes(Number(cb.value));
+            });
+        }
+
+        function saveCurrentCheckboxes() {
+            const selected = Array.from(document.querySelectorAll('.pm-month-cb:checked')).map(cb => Number(cb.value));
+            currentEditingPlan[currentPlanYear] = selected;
+        }
+
+        function initMonthCheckboxes() {
+            const container = document.getElementById('monthCheckboxGroup');
+            if (!container) return;
+            container.innerHTML = MONTH_NAMES_TH.map((m, i) => `
+                <label class="cursor-pointer"><input type="checkbox" class="hidden pm-month-cb" value="${i+1}" onchange="autoUpdateNextPmDate()"><span class="block border rounded py-1 hover:bg-gray-100 transition text-[10px]">${m}</span></label>
+            `).join('');
+        }
+
+        function autoUpdateNextPmDate() {
+            const checkedMonths = Array.from(document.querySelectorAll('.pm-month-cb:checked')).map(cb => parseInt(cb.value)).sort((a,b)=>a-b);
+            if (checkedMonths.length > 0) {
+                const year = document.getElementById('planYearSelector').value;
+                const nextPmInput = document.getElementById('nextPmDate');
+                if (nextPmInput) nextPmInput.value = `${year}-${String(checkedMonths[0]).padStart(2, '0')}-01`;
+            }
+        }
+
+        function initChecklistUI() {
+            const container = document.getElementById('checklistContainer');
+            if (!container) return;
+            container.innerHTML = CHECKLIST_ITEMS.map((item, idx) => `
+                <div class="flex items-center justify-between py-3 px-3 bg-white">
+                    <div class="flex flex-col w-3/4"><span class="text-xs text-gray-800 font-bold leading-tight">${item.title}</span><span class="text-[9px] text-gray-400 italic leading-tight">${item.std}</span></div>
+                    <div class="flex shrink-0">
+                        <input type="radio" id="ok_${idx+1}" name="check_${idx+1}" value="OK" class="hidden radio-ok" checked>
+                        <label for="ok_${idx+1}" class="border border-gray-300 px-3 py-1.5 text-[10px] rounded-l cursor-pointer font-bold text-gray-400 uppercase transition">OK</label>
+                        <input type="radio" id="ng_${idx+1}" name="check_${idx+1}" value="NG" class="hidden radio-ng">
+                        <label for="ng_${idx+1}" class="border border-l-0 border-gray-300 px-3 py-1.5 text-[10px] rounded-r cursor-pointer font-bold text-gray-400 uppercase transition">NG</label>
+                    </div>
+                </div>`).join('');
+        }
+
+        function showAlert(text, classes) {
+            const b = document.getElementById('alertBox'); 
+            if (!b) return;
+            b.className = `mt-4 p-2 rounded-md text-[11px] text-center font-bold ${classes}`;
+            b.innerText = text; b.classList.remove('hidden'); setTimeout(() => b.classList.add('hidden'), 4500);
+        }
+
+        // 🟢 INITIALIZATION
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedId = urlParams.get('id');
+
+            if (sharedId) {
+                isSharedMode = true;
+                document.getElementById('adminInterface').classList.add('hidden');
+                const tpmContent = document.getElementById('tpmModalContent');
+                const sharedWrap = document.getElementById('sharedFormInterface');
+                sharedWrap.appendChild(tpmContent);
+                document.getElementById('tpmModal').classList.remove('hidden', 'bg-black', 'bg-opacity-50', 'fixed');
+                document.getElementById('closeModalBtn').classList.add('hidden');
+                sharedWrap.classList.remove('hidden');
+            } else {
+                initMonthCheckboxes();
+                populateYears();
+                const nextPmIn = document.getElementById('nextPmDate');
+                if (nextPmIn) nextPmIn.valueAsDate = new Date();
+            }
+            initChecklistUI();
+            fetchData();
+        };
+
+        // 🟢 DATA OPERATIONS
+        async function fetchData() {
+            try {
+                const url = GAS_WEB_APP_URL + (GAS_WEB_APP_URL.includes('?') ? '&' : '?') + "t=" + new Date().getTime();
+                const response = await fetch(url);
+                const data = await response.json();
+                rawMoldsList = data; allMoldsData = {}; 
+                data.forEach(item => { allMoldsData[item.moldId] = item; });
+                if (isSharedMode) setupSharedForm();
+                else { populateVendorFilters(data); renderTable(); renderDashboard(); updateStats(data); }
+            } catch (error) { 
+                const tb = document.getElementById('tableBody');
+                if(tb && !isSharedMode) tb.innerHTML = "<tr><td colspan='5' class='py-12 text-center text-red-500 font-bold'>Error: เชื่อมต่อฐานข้อมูลไม่ได้</td></tr>";
+            }
+        }
+
+        async function submitData(event, actionType) {
+            event.preventDefault(); 
+            const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerHTML = `<div class="loader mr-1" style="width:14px;height:14px;"></div> บันทึก...`;
+            saveCurrentCheckboxes(); 
+            const payload = { actionType, moldId: document.getElementById('moldId').value.trim().toUpperCase(), partName: document.getElementById('partName').value, vendor: document.getElementById('vendor').value, responsiblePerson: document.getElementById('responsiblePerson').value, cavity: document.getElementById('cavity').value, yearlyVolume: document.getElementById('yearlyVolume').value, currentShots: document.getElementById('currentShots').value, targetShots: document.getElementById('targetShots').value, nextPmDate: document.getElementById('nextPmDate').value, pmMonths: JSON.stringify(currentEditingPlan) };
+            try {
+                await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                closeDropdownForm();
+                const tableBody = document.getElementById('tableBody');
+                if (tableBody) tableBody.innerHTML = "<tr><td colspan='5' class='py-12 text-center text-blue-500 font-bold'><div class='loader mb-2 border-t-blue-500'></div><br>กำลังบันทึกข้อมูล...</td></tr>";
+                setTimeout(fetchData, 2500); 
+            } catch (e) { showAlert("❌ Error: บันทึกไม่สำเร็จ", "bg-red-100 text-red-800"); } finally { btn.disabled = false; btn.innerHTML = `บันทึก`; }
+        }
+
+        async function submitModalAction(event) {
+            event.preventDefault();
+            const moldId = document.getElementById('modalMoldIdHidden').value || document.getElementById('moldId').value;
+            const btn = document.getElementById('modalSubmitBtn'); btn.disabled = true; btn.innerHTML = `<div class="loader mr-2" style="width:16px;height:16px;border-color:#fff;border-top-color:transparent;"></div> กำลังบันทึก...`;
+            const base = allMoldsData[moldId] || {};
+            const payload = { 
+                actionType: "TPM", moldId, 
+                actionDate: document.getElementById('modalActionDate').value,
+                pic: document.getElementById('modalResponsiblePerson').value,
+                pmDetails: document.getElementById('modalPmDetails').value.trim(),
+                nextPmDate: document.getElementById('modalNextPmDate').value,
+                pmChecklist: CHECKLIST_ITEMS.map((_, idx) => document.querySelector(`input[name="check_${idx+1}"]:checked`).value).join(','),
+                partName: base.partName || "", vendor: base.vendor || "", cavity: base.cavity || 1, yearlyVolume: base.yearlyVolume || 0, currentShots: base.currentShots || 0, targetShots: base.targetShots || 30000, pmMonths: base.pmMonths || "{}"
+            };
+            const fileInput = document.getElementById('modalImageFile');
+            if (fileInput?.files.length > 0) {
+                const reader = new FileReader(); reader.onload = (e) => { payload.imageData = e.target.result; sendRequest(payload); };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else sendRequest(payload);
+        }
+
+        async function sendRequest(payload) {
+            try {
+                await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                if (isSharedMode) { 
+                    document.getElementById('tpmActionForm').classList.add('hidden'); 
+                    document.getElementById('sharedSuccessMsg').classList.remove('hidden'); 
+                } else { 
+                    closeModal(); 
+                    const tableBody = document.getElementById('tableBody');
+                    if (tableBody) tableBody.innerHTML = "<tr><td colspan='5' class='py-12 text-center text-blue-500 font-bold'><div class='loader mb-2 border-t-blue-500'></div><br>กำลังอัปเดตข้อมูล...</td></tr>";
+                    setTimeout(fetchData, 2500);
+                }
+            } catch (e) { alert("บันทึกไม่สำเร็จ"); document.getElementById('modalSubmitBtn').disabled = false; }
+        }
+
+        // 🟢 UI ACTIONS
+        function openDropdownForm() { document.getElementById('formDropdown').classList.add('open'); }
+        function closeDropdownForm() { document.getElementById('formDropdown').classList.remove('open'); clearMainForm(); }
+        function openAddForm() { clearMainForm(); openDropdownForm(); document.getElementById('moldId').focus(); }
+
+        function fillForm(id) {
+            const r = allMoldsData[id]; if(!r) return;
+            const mIn = document.getElementById('moldId'); 
+            if (mIn) { mIn.value = r.moldId; mIn.readOnly = true; mIn.classList.add('bg-gray-100'); }
+            document.getElementById('partName').value = r.partName || "";
+            document.getElementById('vendor').value = r.vendor || "";
+            document.getElementById('responsiblePerson').value = r.responsiblePerson || "";
+            document.getElementById('cavity').value = r.cavity || 1;
+            document.getElementById('yearlyVolume').value = r.yearlyVolume || 0;
+            document.getElementById('currentShots').value = r.currentShots || 0;
+            document.getElementById('targetShots').value = r.targetShots || 30000;
+            currentEditingPlan = parsePmMonths(r.pmMonths); 
+            currentPlanYear = new Date().getFullYear().toString();
+            if (document.getElementById('planYearSelector')) document.getElementById('planYearSelector').value = currentPlanYear;
+            loadCheckboxesForYear();
+            const nextPmIn = document.getElementById('nextPmDate');
+            if (nextPmIn) nextPmIn.value = getNextPlannedDateFromDB(r.pmMonths);
+            document.getElementById('formModeBadge').classList.remove('hidden');
+            calculateDaily(); 
+            openDropdownForm();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            const m = allMoldsData[id]; if(!m) return;
+            document.getElementById('modalPartNameDisplay').innerText = m.partName || "-";
+            document.getElementById('modalMoldIdDisplay').innerText = m.moldId;
+            document.getElementById('modalVendorDisplay').innerText = m.vendor || "-";
+            document.getElementById('modalMoldIdHidden').value = m.moldId;
+            document.getElementById('modalActionDate').valueAsDate = new Date();
+            document.getElementById('modalResponsiblePerson').value = m.responsiblePerson || "";
+            document.getElementById('modalNextPmDate').value = getNextPlannedDateFromDB(m.pmMonths);
+            document.getElementById('modalPmDetails').value = "";
+            document.querySelectorAll('.radio-ok').forEach(r => r.checked = true);
+            document.getElementById('tpmModal').classList.remove('hidden');
+        }
+
+        function closeModal() { if (!isSharedMode) { document.getElementById('tpmModal').classList.add('hidden'); window.history.pushState({}, '', window.location.href.split('?')[0]); } }
+        function clearMainForm() { document.getElementById('moldForm').reset(); const m = document.getElementById('moldId'); m.readOnly = false; m.classList.remove('bg-gray-100'); currentEditingPlan = {}; loadCheckboxesForYear(); document.getElementById('formModeBadge').classList.add('hidden'); }
+        function switchTab(t) { document.getElementById('manageView').classList.toggle('hidden', t !== 'manage'); document.getElementById('dashboardView').classList.toggle('hidden', t !== 'dashboard'); document.getElementById('btnTabManage').className = t === 'manage' ? "px-4 py-2 font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md" : "px-4 py-2 font-medium text-gray-500"; document.getElementById('btnTabDashboard').className = t === 'dashboard' ? "px-4 py-2 font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md" : "px-4 py-2 font-medium text-gray-500"; if(t === 'dashboard') renderDashboard(); }
+        function populateYears() { const p = document.getElementById('planYearSelector'), c = new Date().getFullYear(); if(p) { for(let y=c-1; y<=c+3; y++) p.add(new Option(y, y)); p.value = c; currentPlanYear = c.toString(); } }
+        function populateVendorFilters(data) { const vs = [...new Set(data.map(i => i.vendor).filter(v => v))].sort(), m = document.getElementById('filterVendorManage'), d = document.getElementById('filterVendorDash'); [m, d].forEach(sel => { if(sel) { sel.innerHTML = '<option value="">ทุก Vendor</option>'; vs.forEach(v => sel.add(new Option(v, v))); } }); }
+        function changePlanYear() { saveCurrentCheckboxes(); currentPlanYear = document.getElementById('planYearSelector').value; loadCheckboxesForYear(); autoUpdateNextPmDate(); }
+        function copyShareLink(id) { const url = `${window.location.href.split('?')[0]}?id=${id}`, i = document.createElement("input"); document.body.appendChild(i); i.value = url; i.select(); document.execCommand("copy"); document.body.removeChild(i); const t = document.getElementById('copyToast'); t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2500); }
+        
+        function scrollToUrgent() { 
+            document.getElementById('filterStatusManage').value = 'LATE'; 
+            renderTable(); 
+            document.getElementById('mainTable').scrollIntoView({ behavior: 'smooth' }); 
+        }
+
+        function setupSharedForm() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mold = allMoldsData[urlParams.get('id')];
+            if (!mold) return;
+            document.getElementById('modalPartNameDisplay').innerText = mold.partName || "-";
+            document.getElementById('modalMoldIdDisplay').innerText = mold.moldId;
+            document.getElementById('modalVendorDisplay').innerText = mold.vendor || "-";
+            document.getElementById('modalMoldIdHidden').value = mold.moldId;
+            document.getElementById('modalActionDate').valueAsDate = new Date();
+            document.getElementById('modalResponsiblePerson').value = mold.responsiblePerson || "";
+            document.getElementById('modalNextPmDate').value = getNextPlannedDateFromDB(mold.pmMonths);
+        }
+
+        // 🟢 RENDERING FUNCTIONS
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody'); if (!tableBody) return;
+            let dataList = [...rawMoldsList];
+            const vF = document.getElementById('filterVendorManage').value;
+            const sF = document.getElementById('filterStatusManage').value;
+            if(vF) dataList = dataList.filter(r => r.vendor === vF);
+            const processed = dataList.map(r => {
+                let pri = calculateMoldPriority(r);
+                return { ...r, cur: parseInt(r.currentShots)||0, tar: parseInt(r.targetShots)||30000, pri };
+            });
+            const filtered = sF ? processed.filter(r => r.pri === sF) : processed;
+            tableBody.innerHTML = filtered.length ? "" : "<tr><td colspan='5' class='py-12 text-center text-gray-400'>ไม่มีข้อมูล</td></tr>";
+            document.getElementById('rowCountLabel').innerText = `${filtered.length} รายการ`;
+
+            filtered.forEach((row, idx) => {
+                const pmPlan = parsePmMonths(row.pmMonths);
+                let planHtml = Object.keys(pmPlan).sort().map(y => pmPlan[y].length ? `<div class='mt-1'><span class='year-label'>ปี ${y}:</span>${pmPlan[y].map(m => `<span class='plan-badge'>${MONTH_NAMES_TH[m-1]}</span>`).join('')}</div>` : '').join('');
+                const sText = row.pri === "LATE" ? "🔴 ถึงกำหนด" : (row.pri === "NEAR" ? "🟡 ใกล้ถึง" : "🟢 ปกติ");
+                const statusColor = row.pri === 'LATE' ? 'bg-red-500' : (row.pri === 'NEAR' ? 'bg-yellow-500' : 'bg-blue-500');
+                let histHtml = `<div class="text-[10px] text-gray-400 italic text-center py-2">ไม่มีประวัติ</div>`;
+                if (row.lastPmDate) {
+                    histHtml = `<div class="bg-green-50 p-2 rounded-lg border border-green-200 shadow-sm text-center hover:bg-green-100 transition cursor-pointer" onclick="viewHistory('${row.moldId}')"><i class="fas fa-history text-green-600 mb-1 text-sm"></i><br><span class="text-[10px] font-bold text-gray-800">${String(row.lastPmDate).split(/[ T]/)[0]}</span><br><span class="text-[9px] text-gray-500 truncate w-20 block mx-auto">${row.responsiblePerson || 'ช่าง'}</span></div>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="py-3 px-4 text-center font-bold text-gray-400 border-r">${idx + 1}</td><td class="py-3 px-4 cursor-pointer" onclick="fillForm('${row.moldId}')"><span class="font-bold text-gray-800 text-xl block leading-tight">${row.partName || '-'}</span><span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-1 rounded uppercase">ID: ${row.moldId} | VND: ${row.vendor || '-'}</span><div class="mt-2">${planHtml}</div></td><td class="py-3 px-4 text-xs cursor-pointer" onclick="fillForm('${row.moldId}')"><div class="w-full bg-gray-200 h-1.5 rounded-full mb-1"><div class="h-1.5 rounded-full ${statusColor}" style="width:${Math.min((row.cur/row.tar)*100, 100)}%"></div></div><div class="flex justify-between font-bold text-[9px]"><span>${row.cur.toLocaleString()}</span><span>${row.tar.toLocaleString()}</span></div><div class="font-bold text-[9px] uppercase mt-1 text-center">${sText}</div></td><td class="py-3 px-2 align-middle">${histHtml}</td><td class="py-3 px-4 text-center border-l flex flex-col gap-1"><button onclick="openModal('${row.moldId}')" class="bg-orange-500 text-white text-[10px] font-bold py-1.5 rounded shadow-sm hover:bg-orange-600">บันทึก TPM</button><button onclick="copyShareLink('${row.moldId}')" class="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold py-1 rounded">แชร์ลิงก์</button></td>`;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function renderDashboard() {
+            const body = document.getElementById('dashboardBody'); if (!body) return;
+            let dataList = [...rawMoldsList];
+            const vF = document.getElementById('filterVendorDash').value;
+            if(vF) dataList = dataList.filter(r => r.vendor === vF);
+            body.innerHTML = ""; if (!dataList.length) return;
+            const dYear = parseInt(document.getElementById('dashboardYearSelector').value || new Date().getFullYear());
+            dataList.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                let rowHtml = `<td class="py-2 px-2 border border-gray-300 text-center font-bold text-gray-400 bg-gray-50 text-sm">${idx + 1}</td><td class="py-2 px-2 border border-gray-300 font-bold bg-white text-blue-900 leading-tight"><span class="text-base block text-gray-800">${row.partName || '-'}</span><span class="text-[9px] text-blue-600 uppercase font-bold block mt-1">ID: ${row.moldId} | VND: ${row.vendor || '-'}</span></td>`;
+                let pmDateInfo = getMonthYearFromValue(row.nextPmDate);
+                const plan = parsePmMonths(row.pmMonths), plannedMonths = plan[dYear] || [];
+                for(let m=0; m<12; m++) {
+                    let iconP = "", iconA = "";
+                    if (pmDateInfo && pmDateInfo.year === dYear && pmDateInfo.month === m) iconP = `<i class="fas fa-wrench text-blue-500"></i>`;
+                    else if (plannedMonths.includes(m + 1)) iconP = `<i class="fas fa-wrench text-gray-300"></i>`;
+                    let hist = []; try { hist = JSON.parse(row.pmHistoryLog || "[]"); } catch(e) {}
+                    if (!hist.length && row.lastPmDate) hist.push({date: row.lastPmDate});
+                    if (hist.some(h => { let hi = getMonthYearFromValue(h.date); return hi && hi.year === dYear && hi.month === m; })) iconA = `<div onclick="viewHistory('${row.moldId}')" class="cursor-pointer hover:scale-125 transition-transform"><i class="fas fa-check-circle text-green-500"></i></div>`;
+                    rowHtml += `<td class="p-0 border border-gray-200 text-center"><div class="h-6 border-b border-gray-50 flex items-center justify-center bg-gray-50/30">${iconP}</div><div class="h-6 flex items-center justify-center bg-white">${iconA}</div></td>`;
+                }
+                tr.innerHTML = rowHtml; body.appendChild(tr);
+            });
+        }
+
+        function updateStats(data) {
+            let late = 0, near = 0, normal = 0;
+            data.forEach(r => { let pri = calculateMoldPriority(r); if (pri === "LATE") late++; else if (pri === "NEAR") near++; else normal++; });
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statLate').innerText = late;
+            document.getElementById('statNear').innerText = near;
+            document.getElementById('statNormal').innerText = normal;
+            const al = document.getElementById('urgentAlarmBox');
+            if (late > 0) { al.classList.remove('hidden'); document.getElementById('urgentCountText').innerText = `มีรายการถึงกำหนดทั้งหมด ${late} รายการ`; }
+            else al.classList.add('hidden');
+        }
+
+        function viewHistory(id) {
+            const m = allMoldsData[id]; if (!m) return;
+            const c = document.getElementById('histContent'); document.getElementById('histMoldId').innerText = id;
+            let l = []; try { l = JSON.parse(m.pmHistoryLog || "[]"); } catch(e) {}
+            if (!l.length && m.lastPmDate) l.push({ date: m.lastPmDate, pic: m.responsiblePerson, details: m.lastPmDetails, checklist: m.pmChecklist });
+            c.innerHTML = l.map((log, index) => {
+                const checkHtml = CHECKLIST_ITEMS.map((item, idx) => {
+                    const s = (log.checklist || "").split(',')[idx] || "N/A", color = (s === 'OK') ? 'text-green-600' : (s === 'NG' ? 'text-red-500' : 'text-gray-400');
+                    return `<div class="flex justify-between items-center border-b border-gray-100 py-1"><span class="text-[10px] w-3/4">${item.title}</span><span class="${color} font-bold text-[9px] border px-1 rounded bg-white shadow-sm">${s}</span></div>`;
+                }).join('');
+                return `<div class="bg-white p-3 rounded-lg border shadow-sm">
+                    <div class="flex justify-between items-start border-b pb-2 mb-2"><span class="text-[11px] font-bold text-gray-800">${log.pic || 'ช่าง'}</span><span class="text-[9px] text-gray-400 font-bold">${String(log.date).split(/[ T]/)[0]}</span></div>
+                    <div class="text-[11px] text-gray-700 mb-2 leading-relaxed"><strong class="text-[9px] text-gray-400 uppercase block tracking-tighter mb-0.5">Comment:</strong> ${log.details || '-'}</div>
+                    ${log.image ? `<img src="${log.image}" class="w-full h-32 object-cover rounded mb-2 shadow-sm">` : ''}
+                    <button type="button" onclick="document.getElementById('chk_hist_${id.replace(/\W/g, '')}_${index}').classList.toggle('hidden')" class="w-full mt-1 bg-gray-50 border border-gray-200 text-blue-600 text-[10px] font-bold py-1.5 rounded shadow-sm">ดูผล Checklist 9 ข้อ</button>
+                    <div id="chk_hist_${id.replace(/\W/g, '')}_${index}" class="hidden mt-2 p-2 bg-white rounded border border-gray-200">${checkHtml}</div>
+                </div>`;
+            }).join('');
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function closeHistory() { document.getElementById('historyModal').classList.add('hidden'); }
+    </script>
+</body>
+</html>
