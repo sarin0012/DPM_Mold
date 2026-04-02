@@ -7,102 +7,264 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --slate-bg: #f8fafc;
+        }๐
+
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: var(--slate-bg); 
+            color: #0f172a; 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .loader { 
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid var(--primary); 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            animation: spin 1s linear infinite; 
+            display: inline-block; 
+        }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .glass-card { background: #ffffff; border-radius: 24px; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; }
-        .pm-month-cb:checked + span { background-color: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25); }
-        .radio-ok:checked + label { background-color: #10b981; color: white; border-color: #10b981; }
-        .radio-ng:checked + label { background-color: #ef4444; color: white; border-color: #ef4444; }
-        .plan-badge { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; margin-right: 2px; margin-bottom: 2px; display: inline-block; }
-        .year-label { font-size: 8px; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-right: 4px; }
-        #formDropdown { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 0; overflow: hidden; opacity: 0; }
-        #formDropdown.open { max-height: 2500px; opacity: 1; margin-bottom: 2rem; }
-        .timeline-wrapper { overflow-x: auto; border-radius: 20px; border: 1px solid #f1f5f9; -webkit-overflow-scrolling: touch; }
-        .sticky-col { position: sticky; left: 0; z-index: 20; background: white; border-right: 2px solid #f8fafc; }
-        @media (max-width: 768px) { .desktop-only { display: none; } .mobile-card-grid { display: grid; } }
-        @media (min-width: 769px) { .mobile-only { display: none; } .mobile-card-grid { display: none; } }
-        .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .btn-touch:active { transform: scale(0.96); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px);
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .pm-month-cb:checked + span { 
+            background-color: var(--primary); 
+            color: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); 
+        }
+
+        .radio-ok:checked + label { background-color: var(--success); color: white; border-color: var(--success); }
+        .radio-ng:checked + label { background-color: var(--danger); color: white; border-color: var(--danger); }
+
+        .plan-badge { 
+            background-color: #f1f5f9; 
+            color: #64748b; 
+            border: 1px solid #e2e8f0; 
+            padding: 2px 8px; 
+            border-radius: 8px; 
+            font-size: 10px; 
+            font-weight: 600; 
+            margin: 2px;
+            display: inline-block; 
+        }
+
+        #formDropdown { 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            max-height: 0; 
+            overflow: hidden; 
+            opacity: 0; 
+        }
+        #formDropdown.open { 
+            max-height: 3000px; 
+            opacity: 1; 
+            margin-bottom: 2rem; 
+        }
+
+        .timeline-wrapper { 
+            overflow-x: auto; 
+            border-radius: 20px; 
+            border: 1px solid #f1f5f9; 
+            scrollbar-width: thin;
+        }
+
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            z-index: 20; 
+            background: white; 
+        }
+
+        .status-pill { 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 10px; 
+            font-weight: 700; 
+            letter-spacing: 0.05em;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Image Preview Overlay */
+        #imagePreviewModal.active { display: flex; animation: fadeIn 0.3s ease-out; }
+
+        /* Timeline History Styles */
+        .history-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .history-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 0.375rem;
+            top: 1.5rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: #2563eb;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="pb-10">
 
     <!-- 🚨 ALERT SYSTEM -->
-    <div id="urgentAlarmBox" class="hidden bg-red-600 text-white p-4 shadow-xl flex items-center justify-between sticky top-0 z-[100] border-b border-red-700">
-        <div class="flex items-center gap-3 text-left">
-            <div class="bg-white/20 p-2 rounded-full animate-bounce"><i class="fas fa-bell text-white"></i></div>
-            <div>
-                <p class="font-bold text-sm leading-tight text-white">แม่พิมพ์ถึงกำหนด TPM!</p>
-                <p id="urgentCountText" class="text-[10px] opacity-90 font-bold uppercase text-white">Check Urgent items now</p>
+    <div id="urgentAlarmBox" class="hidden bg-red-600 text-white p-4 shadow-2xl flex items-center justify-between sticky top-0 z-[100] border-b border-red-700 animate-pulse">
+        <div class="flex items-center gap-4">
+            <div class="bg-white/20 p-2.5 rounded-full"><i class="fas fa-exclamation-triangle text-white"></i></div>
+            <div class="text-left">
+                <p class="font-bold text-sm leading-tight">พบแม่พิมพ์เกินกำหนด!</p>
+                <p id="urgentCountText" class="text-[11px] opacity-90 font-medium">กรุณาตรวจสอบรายการที่ค้างชำระ</p>
             </div>
         </div>
-        <button onclick="scrollToUrgent()" class="bg-white text-red-600 px-4 py-1.5 rounded-full text-xs font-bold shadow active:scale-95 transition-transform">ดูรายการ</button>
+        <div class="flex gap-2">
+            <button onclick="scrollToUrgent()" class="bg-white text-red-600 px-5 py-2 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition-transform">ดูรายการ</button>
+            <button onclick="dismissAlarm()" class="text-white/70 hover:text-white px-2"><i class="fas fa-times"></i></button>
+        </div>
     </div>
 
     <!-- 🟢 TOP NAV -->
-    <nav id="navbar" class="bg-white border-b border-slate-100 sticky top-0 z-50">
+    <nav id="navbar" class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-5 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-slate-900 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-microchip"></i></div>
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-600 text-white w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 rotate-3"><i class="fas fa-microchip text-lg"></i></div>
                 <div class="text-left">
-                    <h1 class="font-bold text-slate-800 leading-none">Mold TPM <span class="text-blue-600">Pro</span></h1>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest leading-none">Stability Edition</p>
+                    <h1 class="font-bold text-slate-800 leading-none text-lg">Mold TPM <span class="text-blue-600 font-extrabold italic">PRO</span></h1>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-[0.2em]">Maintenance Intelligence</p>
                 </div>
             </div>
-            <button onclick="fetchData()" class="bg-slate-50 w-11 h-11 rounded-2xl flex items-center justify-center text-slate-500 active:bg-slate-200 transition-all border border-slate-100 shadow-sm"><i class="fas fa-sync-alt"></i></button>
+            <div class="flex gap-2">
+                <button onclick="fetchData()" id="refreshBtn" class="bg-slate-50 w-11 h-11 rounded-2xl flex items-center justify-center text-slate-500 hover:text-blue-600 active:bg-blue-50 transition-all border border-slate-100 shadow-sm"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- 📊 QUICK STATS -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-            <div class="glass-card p-4 border-l-4 border-slate-900"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1 text-left">Molds</p><h3 id="statTotal" class="text-xl font-bold text-left">0</h3></div>
-            <div class="glass-card p-4 border-l-4 border-red-500"><p class="text-[10px] font-bold text-red-400 uppercase mb-1 text-left">Due Month</p><h3 id="statLate" class="text-xl font-bold text-red-600 text-left">0</h3></div>
-            <div class="glass-card p-4 border-l-4 border-amber-500"><p class="text-[10px] font-bold text-amber-500 uppercase mb-1 text-left">Next Month</p><h3 id="statNear" class="text-xl font-bold text-amber-600 text-left">0</h3></div>
-            <div class="glass-card p-4 border-l-4 border-emerald-500"><p class="text-[10px] font-bold text-emerald-500 uppercase mb-1 text-left">Safe</p><h3 id="statNormal" class="text-xl font-bold text-emerald-600 text-left">0</h3></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="glass-card p-5 border-l-4 border-slate-800">
+                <p class="text-[11px] font-bold text-slate-400 uppercase mb-2">Total Molds</p>
+                <div class="flex items-end gap-2">
+                    <h3 id="statTotal" class="text-3xl font-black text-slate-800">0</h3>
+                    <span class="text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Units</span>
+                </div>
+            </div>
+            <div class="glass-card p-5 border-l-4 border-red-500 bg-red-50/30">
+                <p class="text-[11px] font-bold text-red-500 uppercase mb-2">Overdue</p>
+                <h3 id="statLate" class="text-3xl font-black text-red-600">0</h3>
+            </div>
+            <div class="glass-card p-5 border-l-4 border-amber-500 bg-amber-50/30">
+                <p class="text-[11px] font-bold text-amber-500 uppercase mb-2">Upcoming</p>
+                <h3 id="statNear" class="text-3xl font-black text-amber-600">0</h3>
+            </div>
+            <div class="glass-card p-5 border-l-4 border-emerald-500 bg-emerald-50/30">
+                <p class="text-[11px] font-bold text-emerald-500 uppercase mb-2">Safe</p>
+                <h3 id="statNormal" class="text-3xl font-black text-emerald-600">0</h3>
+            </div>
         </div>
 
-        <!-- 📑 TABS -->
-        <div id="tabContainer" class="flex bg-slate-200/50 p-1.5 rounded-[22px] mb-8 shadow-inner">
-            <button onclick="switchTab('manage')" id="btnTabManage" class="flex-1 py-3.5 text-xs font-bold rounded-[18px] transition-all duration-300 bg-white shadow-md text-blue-600">จัดการข้อมูล</button>
-            <button onclick="switchTab('dashboard')" id="btnTabDashboard" class="flex-1 py-3.5 text-xs font-bold rounded-[18px] transition-all duration-300 text-slate-500">ภาพรวม Timeline</button>
+        <!-- 📑 TABS & SEARCH -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+            <div id="tabContainer" class="flex bg-slate-200/50 p-1.5 rounded-[24px] shadow-inner w-full md:w-auto">
+                <button onclick="switchTab('manage')" id="btnTabManage" class="flex-1 md:w-40 py-3.5 text-xs font-bold rounded-[20px] transition-all duration-300 bg-white shadow-md text-blue-600">จัดการข้อมูล</button>
+                <button onclick="switchTab('dashboard')" id="btnTabDashboard" class="flex-1 md:w-40 py-3.5 text-xs font-bold rounded-[20px] transition-all duration-300 text-slate-500">Timeline Dashboard</button>
+            </div>
+            
+            <div class="relative w-full md:w-72">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="ค้นหา Mold ID / ชื่อ..." class="search-input w-full bg-white border border-slate-200 pl-11 pr-4 py-3.5 rounded-[20px] text-sm focus:outline-none focus:border-blue-500 transition-all shadow-sm">
+            </div>
         </div>
 
         <!-- 📂 VIEW 1: MANAGE -->
-        <div id="manageView" class="animate-fade-in text-left">
+        <div id="manageView" class="animate-fade-in">
             <!-- 🔽 DROPDOWN FORM -->
-            <div id="formDropdown" class="glass-card overflow-hidden">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6 border-b pb-4"><h2 class="font-bold text-slate-800 uppercase flex items-center gap-2 text-left"><i class="fas fa-edit text-blue-600"></i> Master Database</h2><button onclick="closeDropdownForm()"><i class="fas fa-times-circle text-slate-300 text-xl"></i></button></div>
+            <div id="formDropdown" class="glass-card mb-8">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-5">
+                        <h2 class="font-bold text-slate-800 text-xl flex items-center gap-3">
+                            <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm"><i class="fas fa-database"></i></span>
+                            Master Database
+                        </h2>
+                        <button onclick="closeDropdownForm()" class="text-slate-300 hover:text-slate-500 transition-colors"><i class="fas fa-times-circle text-2xl"></i></button>
+                    </div>
                     <form id="moldForm" onsubmit="submitData(event)">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div class="space-y-4">
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Mold ID *</label><input type="text" id="moldId" required class="w-full bg-slate-50 border-0 p-3 rounded-xl font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"></div>
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Tool Name *</label><input type="text" id="partName" required class="w-full bg-slate-50 border-0 p-3 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Left Col -->
+                            <div class="space-y-5">
+                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Mold ID *</label><input type="text" id="moldId" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-inner text-slate-800"></div>
+                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">ชื่อโมล / ชิ้นงาน *</label><input type="text" id="partName" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Vendor</label><input type="text" id="vendor" class="w-full bg-slate-50 border-0 p-3 rounded-xl text-xs outline-none uppercase font-bold shadow-inner"></div>
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">PIC</label><input type="text" id="responsiblePerson" class="w-full bg-slate-50 border-0 p-3 rounded-xl text-xs outline-none font-bold shadow-inner"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Vendor</label><input type="text" id="vendor" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-bold shadow-inner"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">ผู้ดูแล (PIC)</label><input type="text" id="responsiblePerson" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-semibold shadow-inner"></div>
                                 </div>
                             </div>
-                            <div class="space-y-4">
+                            <!-- Middle Col -->
+                            <div class="space-y-5">
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Cavity</label><input type="number" id="cavity" value="1" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-3 rounded-xl outline-none font-bold"></div>
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Vol / Year</label><input type="number" id="yearlyVolume" value="0" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-3 rounded-xl outline-none font-bold"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Cavity</label><input type="number" id="cavity" value="1" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">เป้าหมายผลิต/ปี</label><input type="number" id="yearlyVolume" value="0" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
                                 </div>
-                                <div class="bg-blue-50 p-4 rounded-2xl flex justify-between border border-blue-100"><span class="text-[10px] font-bold text-blue-500">AUTO ADD / DAY</span><span id="dailyAutoText" class="font-bold text-blue-700">0</span></div>
+                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl flex justify-between items-center border border-blue-100">
+                                    <span class="text-[11px] font-bold text-blue-600 uppercase tracking-wider">AUTO ADD / DAY</span>
+                                    <span id="dailyAutoText" class="font-black text-blue-800 text-lg">0</span>
+                                </div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Accum. Shots</label><input type="number" id="currentShots" value="0" class="w-full bg-slate-50 border-0 p-3 rounded-xl font-bold outline-none"></div>
-                                    <div><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Target PM</label><input type="number" id="targetShots" value="30000" class="w-full bg-slate-50 border-0 p-3 rounded-xl font-bold outline-none"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Accum. Shots</label><input type="number" id="currentShots" value="0" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-blue-600"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Target TPM</label><input type="number" id="targetShots" value="30000" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-red-500"></div>
                                 </div>
                             </div>
-                            <div class="bg-slate-50 p-6 rounded-[32px] border border-slate-200">
-                                <div class="flex justify-between items-center mb-3"><p class="text-[10px] font-bold text-slate-400 uppercase font-bold">แผน TPM รายปี</p><select id="planYearSelector" class="bg-white border p-1 rounded text-[10px] font-bold outline-none" onchange="changePlanYear()"></select></div>
-                                <div class="grid grid-cols-4 gap-1.5" id="monthCheckboxGroup"></div>
-                                <div class="mt-6"><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Next PM Date</label><input type="date" id="nextPmDate" required class="w-full border-2 border-white bg-white p-3 rounded-2xl text-sm shadow-sm focus:border-blue-500"></div>
-                                <button type="submit" id="submitBtn" class="w-full mt-6 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">บันทึกข้อมูลหลัก</button>
+                            <!-- Right Col (Plan) -->
+                            <div class="bg-slate-50/80 p-6 rounded-[32px] border border-slate-200">
+                                <div class="flex justify-between items-center mb-4">
+                                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">แผน TPM รายปี</p>
+                                    <select id="planYearSelector" class="bg-white border-0 shadow-sm p-2 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500" onchange="changePlanYear()"></select>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2" id="monthCheckboxGroup"></div>
+                                <div class="mt-6">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase block mb-2 ml-1">Next PM Date</label>
+                                    <input type="date" id="nextPmDate" required class="w-full border-2 border-white bg-white p-4 rounded-2xl text-sm font-bold shadow-sm focus:border-blue-500 outline-none">
+                                </div>
+                                <button type="submit" id="submitBtn" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-4.5 rounded-2xl font-bold shadow-xl shadow-blue-100 active:scale-95 transition-all">บันทึกข้อมูลหลัก</button>
                             </div>
                         </div>
                     </form>
@@ -111,127 +273,218 @@
 
             <!-- List Search & Filter Header -->
             <div class="flex flex-col sm:flex-row justify-between items-end gap-4 mb-6">
-                <div class="text-left w-full sm:w-auto"><h2 class="text-2xl font-bold text-slate-800">แม่พิมพ์ปฏิบัติการ</h2><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1" id="rowCountLabel">0 units operational</p></div>
+                <div class="text-left">
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">รายการแม่พิมพ์</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1" id="rowCountLabel">0 units operational</p>
+                </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <select id="filterVendorManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border px-4 py-2.5 rounded-2xl text-xs font-bold shadow-sm outline-none"><option value="">ทุก Vendor</option></select>
-                    <select id="filterStatusManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border px-4 py-2.5 rounded-2xl text-xs font-bold shadow-sm outline-none"><option value="">ทุกสถานะ</option><option value="LATE">🔴 ถึงกำหนด</option><option value="NEAR">🟡 ใกล้ถึง</option></select>
-                    <button onclick="openAddForm()" class="bg-blue-600 text-white w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center active:scale-90 transition-transform"><i class="fas fa-plus"></i></button>
+                    <select id="filterVendorManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none appearance-none hover:bg-slate-50 cursor-pointer">
+                        <option value="">ทุก Vendor</option>
+                    </select>
+                    <select id="filterStatusManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none appearance-none hover:bg-slate-50 cursor-pointer">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="LATE">🔴 ถึงกำหนด</option>
+                        <option value="NEAR">🟡 ใกล้ถึง</option>
+                    </select>
+                    <button onclick="openAddForm()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-2xl shadow-lg shadow-blue-100 flex items-center justify-center active:scale-90 transition-all"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
 
             <!-- Hybrid List Container -->
-            <div class="desktop-only glass-card overflow-hidden">
+            <div class="hidden md:block glass-card overflow-hidden">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px]">
-                        <tr><th class="p-4 text-center w-12 border-r">No.</th><th class="p-4 text-left">ชื่อโมล / Mold ID</th><th class="p-4 text-center">สถานะ</th><th class="p-4 text-center">จัดการ</th></tr>
+                    <thead>
+                        <tr class="bg-slate-50/50 text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                            <th class="p-5 text-center w-16 border-r border-slate-100">No.</th>
+                            <th class="p-5 text-left">ชื่อโมล / Mold ID / แผน</th>
+                            <th class="p-5 text-center">สถานะ Shot Life</th>
+                            <th class="p-5 text-center">จัดการ</th>
+                        </tr>
                     </thead>
-                    <tbody id="desktopTableBody" class="divide-y divide-slate-50 text-left"></tbody>
+                    <tbody id="desktopTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
-            <div id="mobileCardContainer" class="mobile-card-grid gap-5 text-left"></div>
+            
+            <div id="mobileCardContainer" class="grid grid-cols-1 md:hidden gap-6"></div>
         </div>
 
         <!-- 📈 VIEW 2: TIMELINE DASHBOARD -->
-        <div id="dashboardView" class="hidden animate-fade-in text-left">
-            <div class="glass-card p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mb-8 border-b pb-6">
-                    <h2 class="text-xl font-bold text-slate-800 uppercase tracking-tight text-left">Maintenance Timeline <span id="dashYearTitle" class="text-blue-600">2026</span></h2>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <select id="filterVendorDash" onchange="renderDashboard()" class="flex-1 sm:flex-none bg-slate-50 border-0 p-3 rounded-2xl text-[11px] font-bold shadow-inner outline-none"><option value="">ทุก Vendor</option></select>
-                        <select id="dashboardYearSelector" class="bg-slate-50 border-0 p-3 rounded-2xl text-[11px] font-bold shadow-inner outline-none" onchange="renderDashboard()"></select>
+        <div id="dashboardView" class="hidden animate-fade-in">
+            <div class="glass-card p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-100 pb-8">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Maintenance Timeline <span id="dashYearTitle" class="text-blue-600">2026</span></h2>
+                        <p class="text-xs text-slate-400 mt-1 font-medium italic text-left">ตารางแสดงแผนและผลการทำ TPM ประจำปี</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <select id="filterVendorDash" onchange="renderDashboard()" class="flex-1 md:w-48 bg-slate-100/50 border-0 p-3.5 rounded-2xl text-xs font-bold outline-none shadow-inner"><option value="">ทุก Vendor</option></select>
+                        <select id="dashboardYearSelector" class="w-32 bg-slate-100/50 border-0 p-3.5 rounded-2xl text-xs font-bold outline-none shadow-inner" onchange="renderDashboard()"></select>
                     </div>
                 </div>
-                <div class="timeline-wrapper shadow-inner bg-slate-50/20">
-                    <table class="min-w-full text-[10px] border-collapse text-center">
+                
+                <div class="timeline-wrapper shadow-inner bg-slate-50/30">
+                    <table class="min-w-full text-[11px] border-collapse">
                         <thead class="bg-white">
-                            <tr class="text-slate-400 font-bold uppercase tracking-wider">
+                            <tr class="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
                                 <th class="p-4 w-12 sticky-col shadow-sm">#</th>
-                                <th class="p-4 min-w-[200px] text-left sticky-col border-r shadow-sm">Tool Name / ID / Vendor</th>
-                                <th class="p-4 w-12 border-b">ม.ค.</th><th class="p-4 w-12 border-b">ก.พ.</th><th class="p-4 w-12 border-b">มี.ค.</th><th class="p-4 w-12 border-b">เม.ย.</th><th class="p-4 w-12 border-b">พ.ค.</th><th class="p-4 w-12 border-b">มิ.ย.</th><th class="p-4 w-12 border-b">ก.ค.</th><th class="p-4 w-12 border-b">ส.ค.</th><th class="p-4 w-12 border-b">ก.ย.</th><th class="p-4 w-12 border-b">ต.ค.</th><th class="p-4 w-12 border-b">พ.ย.</th><th class="p-4 w-12 border-b">ธ.ค.</th>
+                                <th class="p-4 min-w-[220px] text-left sticky-col border-r border-slate-100 shadow-sm">Tool Identity</th>
+                                <th class="p-4 w-14 border-b">ม.ค.</th><th class="p-4 w-14 border-b">ก.พ.</th><th class="p-4 w-14 border-b">มี.ค.</th><th class="p-4 w-14 border-b">เม.ย.</th><th class="p-4 w-14 border-b">พ.ค.</th><th class="p-4 w-14 border-b">มิ.ย.</th><th class="p-4 w-14 border-b">ก.ค.</th><th class="p-4 w-14 border-b">ส.ค.</th><th class="p-4 w-14 border-b">ก.ย.</th><th class="p-4 w-14 border-b">ต.ค.</th><th class="p-4 w-14 border-b">พ.ย.</th><th class="p-4 w-14 border-b">ธ.ค.</th>
                             </tr>
                         </thead>
                         <tbody id="dashboardBody" class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
+
+                <div class="mt-8 flex flex-wrap gap-6 justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div class="flex items-center gap-2"><i class="fas fa-wrench text-blue-500"></i> แผนรอบถัดไป</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> ดำเนินการแล้ว</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-wrench text-slate-200"></i> แผนที่ตั้งไว้</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 🛠️ MODAL TPM RECORD (Mobile Bottom Sheet Style) -->
-    <div id="tpmModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div id="tpmModalContent" class="bg-white rounded-t-[40px] sm:rounded-[32px] shadow-2xl w-full max-w-lg overflow-hidden max-h-[94vh] flex flex-col animate-fade-in">
-            <div class="px-8 py-5 border-b flex justify-between items-center shrink-0">
-                <div class="text-left"><h3 class="font-bold text-slate-800 text-lg leading-tight">บันทึกผลงาน TPM</h3><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5" id="modalHeaderId"></p></div>
-                <button onclick="closeModal()" id="closeModalBtn" class="bg-slate-100 w-11 h-11 rounded-full flex items-center justify-center text-slate-400 active:scale-90 transition-transform"><i class="fas fa-times text-slate-400"></i></button>
+    <!-- 🛠️ MODAL TPM RECORD -->
+    <div id="tpmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div id="tpmModalContent" class="bg-white rounded-t-[40px] sm:rounded-[32px] shadow-2xl w-full max-w-xl overflow-hidden max-h-[95vh] flex flex-col animate-fade-in">
+            <div class="px-8 py-6 border-b flex justify-between items-center shrink-0">
+                <div class="text-left">
+                    <h3 class="font-bold text-slate-800 text-xl tracking-tight">บันทึกผลงาน TPM</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1" id="modalHeaderId"></p>
+                </div>
+                <button onclick="closeModal()" class="bg-slate-100 hover:bg-red-50 hover:text-red-500 w-12 h-12 rounded-full flex items-center justify-center text-slate-400 transition-all"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form id="tpmActionForm" onsubmit="submitModalAction(event)" class="p-8 overflow-y-auto no-scrollbar pb-12">
-                <div class="mb-8 bg-slate-50 p-8 rounded-[36px] text-center border shadow-sm">
-                    <h2 id="modalPartNameDisplay" class="text-2xl font-bold text-slate-800 leading-tight">...</h2>
-                    <div class="flex flex-wrap justify-center gap-2 mt-3">
-                        <span id="modalMoldIdDisplay" class="bg-blue-600 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase shadow-lg">...</span>
-                        <span id="modalVendorDisplay" class="bg-white border text-[9px] font-bold text-slate-500 px-3 py-1 rounded-full uppercase">...</span>
+            
+            <form id="tpmActionForm" onsubmit="submitModalAction(event)" class="p-8 overflow-y-auto pb-12">
+                <div class="mb-8 bg-slate-50/80 p-8 rounded-[40px] text-center border border-slate-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fas fa-tools text-6xl"></i></div>
+                    <h2 id="modalPartNameDisplay" class="text-2xl font-black text-slate-800 leading-tight mb-4 text-center">...</h2>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <span id="modalMoldIdDisplay" class="bg-blue-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase shadow-lg shadow-blue-100 tracking-widest text-center">...</span>
+                        <span id="modalVendorDisplay" class="bg-white border border-slate-200 text-[10px] font-bold text-slate-500 px-4 py-1.5 rounded-full uppercase tracking-widest text-center">...</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-5 mt-10 pt-8 border-t border-slate-200 text-left">
-                        <div><label class="text-[9px] uppercase font-bold text-slate-400 block mb-2">วันที่ดำเนินการ *</label><input type="date" id="modalActionDate" required class="w-full bg-transparent border-b-2 font-bold text-blue-700 outline-none text-sm"></div>
-                        <div><label class="text-[9px] uppercase font-bold text-slate-400 block mb-2">ผู้รับผิดชอบ *</label><input type="text" id="modalResponsiblePerson" required class="w-full bg-transparent border-b-2 font-bold outline-none text-sm" placeholder="ระบุชื่อ"></div>
+                    
+                    <div class="grid grid-cols-2 gap-8 mt-10 pt-8 border-t border-slate-200/60 text-left">
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest">วันที่ดำเนินการ *</label>
+                            <input type="date" id="modalActionDate" required class="w-full bg-transparent border-b-2 border-slate-200 focus:border-blue-600 font-bold text-slate-800 outline-none text-sm pb-1 transition-all">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest">ผู้รับผิดชอบ *</label>
+                            <input type="text" id="modalResponsiblePerson" required class="w-full bg-transparent border-b-2 border-slate-200 focus:border-blue-600 font-bold text-slate-800 outline-none text-sm pb-1 transition-all" placeholder="ระบุชื่อ">
+                        </div>
                     </div>
                 </div>
-                <div id="checklistContainer" class="bg-slate-50 rounded-[32px] border mb-8 divide-y overflow-hidden"></div>
-                <textarea id="modalPmDetails" rows="3" required class="w-full bg-slate-50 border-0 rounded-[24px] p-5 text-sm outline-none mb-6 shadow-inner" placeholder="ระบุผลการตรวจสอบ..."></textarea>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 text-left">
-                    <div class="bg-blue-50 p-5 rounded-[28px] border"><label class="block text-[9px] font-bold text-blue-600 mb-3 uppercase tracking-widest text-left">📸 รูปถ่าย</label><input type="file" id="modalImageFile" accept="image/*" class="w-full text-[10px] text-slate-500"></div>
-                    <div class="bg-amber-50 p-5 rounded-[28px] border"><label class="block text-[9px] font-bold text-amber-600 mb-3 uppercase tracking-widest font-bold text-left">🗓️ กำหนดรอบถัดไป</label><input type="date" id="modalNextPmDate" required class="w-full bg-transparent border-b border-amber-200 font-bold text-sm outline-none text-amber-900"></div>
+
+                <div class="mb-6"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-4 flex items-center gap-2"><i class="fas fa-clipboard-check text-blue-500"></i> TPM Inspection Checklist</p><div id="checklistContainer" class="bg-slate-50/50 rounded-[28px] border border-slate-100 divide-y divide-slate-100 overflow-hidden"></div></div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block text-left">รายละเอียดการบำรุงรักษา *</label>
+                    <textarea id="modalPmDetails" rows="4" required class="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-sm outline-none mb-6 focus:ring-2 focus:ring-blue-500 shadow-inner" placeholder="ระบุอาการหรือผลการตรวจสอบเพิ่มเติม..."></textarea>
                 </div>
-                <input type="hidden" id="modalMoldIdHidden"><button type="submit" id="modalSubmitBtn" class="w-full bg-slate-900 text-white font-bold py-5 rounded-[28px] shadow-2xl active:scale-95 transition-all text-lg flex items-center justify-center gap-3"><i class="fas fa-save"></i> บันทึกข้อมูล TPM</button>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
+                    <div class="bg-blue-50/50 p-6 rounded-[28px] border border-blue-100">
+                        <label class="block text-[10px] font-bold text-blue-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-camera mr-2 text-left"></i> แนบรูปถ่าย</label>
+                        <input type="file" id="modalImageFile" accept="image/*" class="w-full text-[11px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                    </div>
+                    <div class="bg-amber-50/50 p-6 rounded-[28px] border border-amber-100">
+                        <label class="block text-[10px] font-bold text-amber-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-calendar-alt mr-2 text-left"></i> กำหนดรอบถัดไป</label>
+                        <input type="date" id="modalNextPmDate" required class="w-full bg-transparent border-b border-amber-200 font-bold text-sm outline-none text-slate-800">
+                    </div>
+                </div>
+
+                <input type="hidden" id="modalMoldIdHidden">
+                <button type="submit" id="modalSubmitBtn" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-5 rounded-[24px] shadow-2xl active:scale-95 transition-all text-lg flex items-center justify-center gap-4">
+                    <i class="fas fa-save"></i> 
+                    ยืนยันบันทึกผลงาน TPM
+                </button>
             </form>
-            <div id="sharedSuccessMsg" class="hidden p-16 text-center h-full flex flex-col items-center justify-center bg-white text-left">
-                <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-6xl mb-8 shadow-inner shadow-emerald-100"><i class="fas fa-check"></i></div>
-                <h2 class="text-3xl font-bold">บันทึกสำเร็จ!</h2><button onclick="finishAndClose()" class="w-full max-w-xs bg-slate-900 text-white font-bold py-4.5 rounded-[24px] mt-10 shadow-xl">เสร็จสิ้น</button>
+            
+            <div id="sharedSuccessMsg" class="hidden p-16 text-center h-full flex flex-col items-center justify-center bg-white">
+                <div class="w-28 h-28 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-7xl mb-10 shadow-inner shadow-emerald-100"><i class="fas fa-check"></i></div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">บันทึกสำเร็จ!</h2>
+                <p class="text-slate-400 font-medium mb-10">ข้อมูล TPM ถูกบันทึกลงฐานข้อมูลเรียบร้อยแล้ว</p>
+                <button onclick="finishAndClose()" class="w-full max-w-xs bg-slate-900 text-white font-bold py-5 rounded-[24px] shadow-xl hover:bg-black transition-all">เสร็จสิ้น</button>
             </div>
         </div>
     </div>
 
     <!-- History View Modal -->
-    <div id="historyModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[120] flex items-center justify-center p-4">
-        <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden max-h-[85vh] flex flex-col animate-fade-in">
-            <div class="px-6 py-5 border-b flex justify-between items-center shrink-0">
-                <div class="text-left"><h4 id="histMoldIdDisplay" class="text-xl font-bold text-slate-800 leading-none"></h4><p class="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Maintenance History</p></div>
-                <button onclick="closeHistory()" class="text-slate-400 text-xl"><i class="fas fa-times"></i></button>
+    <div id="historyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden z-[120] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-lg overflow-hidden max-h-[85vh] flex flex-col animate-fade-in">
+            <div class="px-8 py-6 border-b bg-slate-50 flex justify-between items-center shrink-0">
+                <div class="text-left">
+                    <h4 id="histMoldIdDisplay" class="text-xl font-black text-slate-800 leading-none"></h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1.5 tracking-widest text-left">ประวัติการซ่อมบำรุงย้อนหลัง</p>
+                </div>
+                <button onclick="closeHistory()" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors shadow-sm"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div id="histContent" class="p-6 overflow-y-auto flex-1 bg-slate-50/50 space-y-4"></div>
-            <div class="p-4 bg-white border-t"><button onclick="closeHistory()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-md">ปิด</button></div>
+            <div id="histContent" class="p-8 overflow-y-auto flex-1 bg-white space-y-8 history-timeline">
+                <!-- Content generated by JS -->
+            </div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeHistory()" class="w-full bg-slate-900 text-white py-4.5 rounded-[24px] font-bold shadow-lg hover:bg-black transition-all">ปิดหน้าต่าง</button></div>
         </div>
     </div>
 
-    <div id="copyToast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-8 py-3 rounded-2xl text-xs hidden z-[150] shadow-2xl items-center font-bold animate-bounce"><i class="fas fa-check-circle text-green-400 mr-2"></i> ลิงก์ถูกคัดลอกแล้ว!</div>
+    <!-- 🖼️ Image Preview Full Modal -->
+    <div id="imagePreviewModal" class="fixed inset-0 bg-black/95 backdrop-blur-lg hidden z-[200] flex flex-col items-center justify-center p-4">
+        <button onclick="closeImagePreview()" class="absolute top-6 right-6 text-white text-3xl hover:text-blue-400 transition-colors z-[210]"><i class="fas fa-times-circle"></i></button>
+        <div class="max-w-4xl w-full h-full flex items-center justify-center">
+            <img id="fullPreviewImg" src="" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl">
+        </div>
+        <p class="text-white/50 text-[10px] uppercase font-bold mt-4 tracking-widest">Image Preview Mode</p>
+    </div>
+
+    <div id="copyToast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-10 py-4 rounded-[24px] text-sm hidden z-[150] shadow-2xl items-center font-bold animate-bounce"><i class="fas fa-check-circle text-emerald-400 mr-3 text-lg"></i> คัดลอกลิงก์เรียบร้อยแล้ว!</div>
 
     <script>
         // 🟢 GLOBAL CONFIG
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby728HzikJbhMxGIayzdUGB8eqvgs_17cZTRl7Mt4P_swTZ6NTbZAulIQus8kwY4ejZ9w/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8Wgw-vpq0eLDpkbyEA9qBn7H2qchRSC0ikjB13UMxYMpGLXOF2nr1PmkeyuDEA0RJ/exec";
         const MONTH_NAMES_TH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-        const CHECKLIST_ITEMS = [{ title: "1. ชิ้นงานสุดท้าย", std: "ไม่เป็นรอยและมีครีบ" },{ title: "2. จุดยึดต่างๆ", std: "SCREW ต้องยึดแน่น" },{ title: "3. การหล่อลื่น", std: "ต้องคล่องตัว" },{ title: "4. รูน้ำหล่อเย็น", std: "ไม่อุดตัน/รั่ว" },{ title: "5. เช็ค SPRING", std: "ไม่แตกหัก" },{ title: "6. EJECTOR PIN", std: "ไม่หัก/ไหม้" },{ title: "7. GUIDE POST/BUSH", std: "ไม่สึก/มีจาระบี" },{ title: "8. สนิมหน้าแม่พิมพ์", std: "ไม่มีสนิม" },{ title: "9. ความสะอาด", std: "สะอาด" }];
+        const CHECKLIST_ITEMS = [
+            { title: "1. ชิ้นงานตัวอย่างสุดท้าย", std: "ไม่มีครีบและไม่มีรอย" },
+            { title: "2. จุดยึดและน็อตต่างๆ", std: "ต้องยึดแน่นทุกจุด" },
+            { title: "3. ระบบหล่อลื่น", std: "ชิ้นส่วนเคลื่อนที่คล่องตัว" },
+            { title: "4. ระบบหล่อเย็น", std: "ไม่มีจุดรั่วซึม/ไม่อุดตัน" },
+            { title: "5. ตรวจเช็คสปริง", std: "ไม่มีรอยแตกหัก" },
+            { title: "6. ชุดเข็มกระทุ้ง (Ejector)", std: "ไม่หัก/ไม่มีรอยไหม้" },
+            { title: "7. เสานำ (Guide Post)", std: "ผิวเรียบ/ทาจาระบีเหมาะสม" },
+            { title: "8. ผิวหน้าแม่พิมพ์", std: "สะอาดและไม่มีสนิม" },
+            { title: "9. ความสะอาดโดยรวม", std: "ทำความสะอาดเรียบร้อย" }
+        ];
 
         let allMoldsData = {}, rawMoldsList = [], currentEditingPlan = {}, currentPlanYear = "", isSharedMode = false, alarmDismissed = false;
 
-        // 🎨 AUTO VENDOR COLORS
-        const VENDOR_COLOR_PALETTE = [{ text: 'text-blue-600', border: 'border-blue-500', solid: 'bg-blue-600' },{ text: 'text-emerald-600', border: 'border-emerald-500', solid: 'bg-emerald-600' },{ text: 'text-purple-600', border: 'border-purple-500', solid: 'bg-purple-600' },{ text: 'text-rose-600', border: 'border-rose-500', solid: 'bg-rose-600' },{ text: 'text-amber-600', border: 'border-amber-500', solid: 'bg-amber-600' }];
-        function getVendorColor(v) { if (!v || v === '-') return { text: 'text-slate-500', border: 'border-slate-200', solid: 'bg-slate-500' }; let h = 0; for (let i = 0; i < v.length; i++) h = v.charCodeAt(i) + ((h << 5) - h); return VENDOR_COLOR_PALETTE[Math.abs(h) % VENDOR_COLOR_PALETTE.length]; }
+        const VENDOR_COLOR_PALETTE = [
+            { text: 'text-blue-600', border: 'border-blue-500', solid: 'bg-blue-600', bg: 'bg-blue-50' },
+            { text: 'text-emerald-600', border: 'border-emerald-500', solid: 'bg-emerald-600', bg: 'bg-emerald-50' },
+            { text: 'text-indigo-600', border: 'border-indigo-500', solid: 'bg-indigo-600', bg: 'bg-indigo-50' },
+            { text: 'text-rose-600', border: 'border-rose-500', solid: 'bg-rose-600', bg: 'bg-rose-50' },
+            { text: 'text-amber-600', border: 'border-amber-500', solid: 'bg-amber-600', bg: 'bg-amber-50' }
+        ];
 
-        // 🛠️ DATE UTILS (Fixed Year Bug)
+        function getVendorColor(v) { 
+            if (!v || v === '-') return { text: 'text-slate-500', border: 'border-slate-200', solid: 'bg-slate-500', bg: 'bg-slate-50' }; 
+            let h = 0; for (let i = 0; i < v.length; i++) h = v.charCodeAt(i) + ((h << 5) - h); 
+            return VENDOR_COLOR_PALETTE[Math.abs(h) % VENDOR_COLOR_PALETTE.length]; 
+        }
+
         function parsePmMonths(str) { try { if (typeof str === 'object') return str || {}; return JSON.parse(str || "{}"); } catch(e) { return {}; } }
         
         function getMonthYearFromValue(val) { 
             if (!val) return null; 
-            if (val instanceof Date) return { month: val.getMonth(), year: val.getFullYear() };
-            let strVal = String(val).trim().split(/[ T]/)[0];
-            let parts = strVal.split(/[-/]/); 
-            if (parts.length >= 3) { 
-                let y = parseInt(parts[0]) > 1000 ? parseInt(parts[0]) : parseInt(parts[2]);
-                let m = parseInt(parts[1]) - 1;
-                if (y > 2500) y -= 543;
-                return { month: m, year: y }; 
-            } 
-            return null; 
+            let d = new Date(val);
+            if (isNaN(d.getTime())) {
+                let parts = String(val).split(/[-/]/);
+                if (parts.length >= 3) {
+                    let y = parseInt(parts[0]) > 1000 ? parseInt(parts[0]) : parseInt(parts[2]);
+                    if (y > 2500) y -= 543;
+                    return { month: parseInt(parts[1]) - 1, year: y };
+                }
+                return null;
+            }
+            return { month: d.getMonth(), year: d.getFullYear() };
         }
 
         function calculateMoldPriority(r) { 
@@ -240,9 +493,8 @@
             if (cur >= tar) return "LATE"; 
             let info = getMonthYearFromValue(r.nextPmDate); if (!info) return "NORMAL"; 
             const today = new Date();
-            const currYear = today.getFullYear(), currMonth = today.getMonth(); 
-            const diff = (info.year - currYear) * 12 + (info.month - currMonth); 
-            if (diff <= 0) return "LATE"; if (diff === 1) return "NEAR"; return "NORMAL"; 
+            const diff = (info.year - today.getFullYear()) * 12 + (info.month - today.getMonth()); 
+            if (diff < 0) return "LATE"; if (diff === 0) return "LATE"; if (diff === 1) return "NEAR"; return "NORMAL"; 
         }
 
         function calculateNextPlannedDate(pmPlanStr, currentActionDate) {
@@ -261,7 +513,6 @@
             return ""; 
         }
 
-        // 📸 IMAGE COMPRESSOR
         async function compressImage(file, maxWidth = 1024, quality = 0.7) {
             return new Promise((resolve) => {
                 const reader = new FileReader(); reader.readAsDataURL(file);
@@ -279,49 +530,64 @@
             });
         }
 
-        // 🟢 DATA FETCH
         window.onload = function() {
             const sharedId = new URLSearchParams(window.location.search).get('id');
             if (sharedId) {
-                isSharedMode = true; document.getElementById('manageView')?.classList.add('hidden');
-                document.querySelector('nav')?.classList.add('hidden');
-                document.getElementById('tpmModal')?.classList.remove('hidden', 'bg-slate-900/70', 'fixed');
-            } else { initMonthCheckboxes(); populateYears(); if(document.getElementById('nextPmDate')) document.getElementById('nextPmDate').valueAsDate = new Date(); }
+                isSharedMode = true; 
+                document.getElementById('navbar')?.classList.add('hidden');
+                document.getElementById('tabContainer')?.parentElement.classList.add('hidden');
+                document.getElementById('manageView')?.classList.add('hidden');
+                document.getElementById('tpmModal')?.classList.remove('hidden', 'bg-slate-900/60', 'fixed');
+            } else { 
+                initMonthCheckboxes(); populateYears(); 
+                if(document.getElementById('nextPmDate')) document.getElementById('nextPmDate').valueAsDate = new Date(); 
+            }
             initChecklistUI(); fetchData();
         };
 
         async function fetchData() {
+            const btn = document.getElementById('refreshBtn');
+            if(btn) btn.innerHTML = `<div class="loader"></div>`;
             try {
                 const response = await fetch(GAS_WEB_APP_URL + "?t=" + new Date().getTime());
                 const data = await response.json();
-                rawMoldsList = data; allMoldsData = {}; data.forEach(item => { allMoldsData[item.moldId] = item; });
-                if (isSharedMode) setupSharedForm(); else { populateVendorFilters(data); renderTable(); renderDashboard(); updateStats(data); }
-            } catch (e) { console.error("Database connection failed"); }
+                rawMoldsList = data; 
+                allMoldsData = {}; data.forEach(item => { allMoldsData[item.moldId] = item; });
+                if (isSharedMode) setupSharedForm(); else { 
+                    populateVendorFilters(data); 
+                    renderTable(); 
+                    renderDashboard(); 
+                    updateStats(data); 
+                }
+            } catch (e) { console.error("Database connection failed", e); } 
+            finally { if(btn) btn.innerHTML = `<i class="fas fa-sync-alt"></i>`; }
         }
+
+        function handleSearch() { renderTable(); renderDashboard(); }
 
         function renderTable() {
             const dTb = document.getElementById('desktopTableBody'), mC = document.getElementById('mobileCardContainer');
             if (!dTb || !mC) return;
             let list = [...rawMoldsList]; 
+            const searchVal = document.getElementById('globalSearch').value.toLowerCase();
             const vF = document.getElementById('filterVendorManage').value, sF = document.getElementById('filterStatusManage').value;
+            if(searchVal) list = list.filter(r => r.moldId.toLowerCase().includes(searchVal) || r.partName.toLowerCase().includes(searchVal));
             if(vF) list = list.filter(r => r.vendor === vF);
             const processed = list.map(r => ({ ...r, pri: calculateMoldPriority(r) }));
             const filtered = sF ? processed.filter(r => r.pri === sF) : processed;
-            
-            const countLabel = document.getElementById('rowCountLabel'); if (countLabel) countLabel.innerText = `${filtered.length} units operational`;
-            
+            document.getElementById('rowCountLabel').innerText = `${filtered.length} units operational`;
             dTb.innerHTML = ""; mC.innerHTML = "";
             filtered.forEach((row, idx) => {
-                const vColor = getVendorColor(row.vendor), sColor = row.pri === 'LATE' ? 'bg-red-500' : (row.pri === 'NEAR' ? 'bg-amber-400' : 'bg-emerald-500');
+                const vColor = getVendorColor(row.vendor);
+                const sColor = row.pri === 'LATE' ? 'bg-red-500' : (row.pri === 'NEAR' ? 'bg-amber-400' : 'bg-emerald-500');
                 const progress = Math.min(((parseInt(row.currentShots)||0)/(parseInt(row.targetShots)||30000))*100, 100);
-                const plan = parsePmMonths(row.pmMonths), pTag = Object.keys(plan).sort().map(y => plan[y].length ? `<div class='mt-1'><span class='year-label'>${y}:</span>${plan[y].map(m => `<span class='plan-badge'>${MONTH_NAMES_TH[m-1]}</span>`).join('')}</div>` : '').join('');
-                
+                const plan = parsePmMonths(row.pmMonths), pTag = Object.keys(plan).sort().map(y => plan[y].length ? `<div class='mt-1'><span class='text-[8px] font-bold text-slate-400 uppercase mr-1'>${y}:</span>${plan[y].map(m => `<span class='plan-badge'>${MONTH_NAMES_TH[m-1]}</span>`).join('')}</div>` : '').join('');
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="p-4 text-center font-bold text-slate-300 border-r">${idx+1}</td><td class="p-4 cursor-pointer" onclick="fillForm('${row.moldId}')"><h4 class="font-bold text-slate-800">${row.partName}</h4><p class="text-[9px] font-bold ${vColor.text} uppercase tracking-widest mt-1">${row.moldId} | ${row.vendor||'-'}</p><div class="mt-1">${pTag}</div></td><td class="p-4 text-center"><div class="flex items-center gap-3 px-6"><div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div class="h-full ${sColor}" style="width:${progress}%"></div></div><span class="text-[9px] font-bold uppercase ${row.pri==='LATE'?'text-red-500':'text-slate-400'}">${row.pri}</span></div></td><td class="p-4 text-center flex justify-center gap-2"><button onclick="openModal('${row.moldId}')" class="${vColor.solid} text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-95 shadow-lg">TPM</button><button onclick="copyShareLink('${row.moldId}')" class="bg-white border text-slate-400 px-3 py-2 rounded-xl active:bg-slate-50"><i class="fas fa-share-nodes"></i></button></td>`;
+                tr.className = "hover:bg-slate-50/50 transition-colors group";
+                tr.innerHTML = `<td class="p-5 text-center font-bold text-slate-300 border-r border-slate-50">${idx+1}</td><td class="p-5 cursor-pointer" onclick="fillForm('${row.moldId}')"><h4 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors text-left">${row.partName}</h4><p class="text-[9px] font-bold ${vColor.text} uppercase tracking-widest mt-1 text-left">${row.moldId} | ${row.vendor||'-'}</p><div class="mt-2 text-left">${pTag}</div></td><td class="p-5"><div class="max-w-xs mx-auto"><div class="flex justify-between items-center mb-2"><span class="status-pill ${row.pri==='LATE'?'bg-red-100 text-red-600':'bg-emerald-100 text-emerald-600'}">${row.pri}</span><span class="text-[10px] font-bold text-slate-400">${Math.round(progress)}%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div class="h-full ${sColor} transition-all duration-700" style="width:${progress}%"></div></div></div></td><td class="p-5 text-center"><div class="flex items-center justify-center gap-2"><button onclick="openModal('${row.moldId}')" class="${vColor.solid} text-white px-5 py-2.5 rounded-xl text-xs font-bold active:scale-95 shadow-lg ${vColor.solid.replace('bg-', 'shadow-')}/20">TPM</button><button onclick="copyShareLink('${row.moldId}')" class="bg-white border border-slate-200 text-slate-400 w-10 h-10 rounded-xl flex items-center justify-center active:bg-slate-50"><i class="fas fa-link text-xs"></i></button></div></td>`;
                 dTb.appendChild(tr);
-
-                const card = document.createElement('div'); card.className = `glass-card p-6 border-l-[12px] ${vColor.border}`;
-                card.innerHTML = `<div class="flex justify-between items-start mb-4 text-left"><div onclick="fillForm('${row.moldId}')"><h4 class="font-bold text-slate-800 text-lg leading-tight text-left">${row.partName}</h4><p class="text-[10px] font-bold ${vColor.text} uppercase tracking-widest mt-1 text-left">${row.moldId} | ${row.vendor||'-'}</p></div><span class="status-pill text-[8px] font-bold px-3 py-1 ${row.pri==='LATE'?'bg-red-50 text-red-600':'bg-emerald-50 text-emerald-600'} text-left">${row.pri}</span></div><div class="mb-4">${pTag}</div><div class="h-3 bg-slate-100 rounded-full overflow-hidden mb-5 shadow-inner"><div class="h-full ${sColor} transition-all duration-1000" style="width:${progress}% text-left"></div></div><div class="flex gap-2"><button onclick="openModal('${row.moldId}')" class="flex-1 ${vColor.solid} text-white py-4 rounded-2xl text-xs font-bold active:bg-slate-800 btn-touch shadow-lg shadow-blue-50 text-left"><i class="fas fa-wrench mr-2 text-left"></i>บันทึก TPM</button><button onclick="copyShareLink('${row.moldId}')" class="bg-white text-slate-400 px-5 rounded-2xl active:bg-slate-50 btn-touch border shadow-sm"><i class="fas fa-share-nodes text-left"></i></button></div>`;
+                const card = document.createElement('div'); card.className = `glass-card p-6 border-l-[12px] ${vColor.border} animate-fade-in`;
+                card.innerHTML = `<div class="flex justify-between items-start mb-4"><div onclick="fillForm('${row.moldId}')"><h4 class="font-bold text-slate-800 text-lg leading-tight text-left">${row.partName}</h4><p class="text-[10px] font-bold ${vColor.text} uppercase tracking-widest mt-1 text-left">${row.moldId} | ${row.vendor||'-'}</p></div><span class="status-pill ${row.pri==='LATE'?'bg-red-50 text-red-600':'bg-emerald-50 text-emerald-600'}">${row.pri}</span></div><div class="mb-4 text-left">${pTag}</div><div class="space-y-2 mb-6"><div class="flex justify-between text-[10px] font-bold text-slate-400"><span>SHOT PROGRESS</span><span>${(parseInt(row.currentShots)||0).toLocaleString()} / ${(parseInt(row.targetShots)||30000).toLocaleString()}</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div class="h-full ${sColor} transition-all duration-1000" style="width:${progress}%"></div></div></div><div class="flex gap-2"><button onclick="openModal('${row.moldId}')" class="flex-1 ${vColor.solid} text-white py-4 rounded-2xl text-xs font-bold active:scale-95 shadow-lg"><i class="fas fa-wrench mr-2 text-left"></i>บันทึก TPM</button><button onclick="copyShareLink('${row.moldId}')" class="bg-white text-slate-400 px-5 rounded-2xl active:bg-slate-50 border border-slate-100 shadow-sm"><i class="fas fa-share-nodes text-left"></i></button></div>`;
                 mC.appendChild(card);
             });
         }
@@ -330,8 +596,9 @@
             const body = document.getElementById('dashboardBody'); if (!body) return;
             const dYear = parseInt(document.getElementById('dashboardYearSelector').value || new Date().getFullYear());
             const vFilter = document.getElementById('filterVendorDash').value;
+            const searchVal = document.getElementById('globalSearch').value.toLowerCase();
             let list = [...rawMoldsList]; if(vFilter) list = list.filter(r => r.vendor === vFilter);
-
+            if(searchVal) list = list.filter(r => r.moldId.toLowerCase().includes(searchVal) || r.partName.toLowerCase().includes(searchVal));
             body.innerHTML = list.map((row, idx) => {
                 const vColor = getVendorColor(row.vendor);
                 let pmInfo = getMonthYearFromValue(row.nextPmDate), plan = parsePmMonths(row.pmMonths), pMonths = plan[dYear] || [];
@@ -339,109 +606,122 @@
                 let cells = Array.from({length:12}, (_,m) => {
                     let isActualDone = hist.some(h => { let hi = getMonthYearFromValue(h.date); return hi?.year===dYear && hi?.month===m; });
                     let isPlanned = pMonths.includes(m+1), isNextPm = (pmInfo?.year===dYear && pmInfo?.month===m);
-                    let iconP = isNextPm ? `<i class="fas fa-wrench text-blue-500 scale-125"></i>` : (isPlanned ? `<i class="fas fa-wrench ${isActualDone ? 'text-slate-300':'text-slate-200'}"></i>` : "");
-                    let iconA = isActualDone ? `<i class="fas fa-check-circle text-emerald-500 text-sm" onclick="viewHistory('${row.moldId}')"></i>` : "";
-                    return `<td class="border border-slate-100 p-0 text-center"><div class="h-7 border-b flex items-center justify-center bg-gray-50/20">${iconP}</div><div class="h-8 flex items-center justify-center">${iconA}</div></td>`;
+                    let iconP = isNextPm ? `<i class="fas fa-wrench text-blue-500 scale-125 animate-bounce"></i>` : (isPlanned ? `<i class="fas fa-wrench ${isActualDone ? 'text-slate-300':'text-slate-200'}"></i>` : "");
+                    let iconA = isActualDone ? `<i class="fas fa-check-circle text-emerald-500 text-lg cursor-pointer hover:scale-110 transition-transform" onclick="viewHistory('${row.moldId}')"></i>` : "";
+                    return `<td class="border border-slate-100 p-0 text-center"><div class="h-8 border-b border-slate-50 flex items-center justify-center bg-slate-50/20">${iconP}</div><div class="h-10 flex items-center justify-center">${iconA}</div></td>`;
                 }).join('');
-                return `<tr class="hover:bg-slate-50 transition text-left"><td class="p-3 font-bold text-slate-300 sticky-col border-r">${idx+1}</td><td class="p-4 font-bold text-slate-700 sticky-col border-r shadow-sm text-left uppercase leading-tight">${row.partName}<br><span class="text-[7px] text-blue-500">${row.moldId}</span><br><div class="flex items-center gap-1 mt-0.5"><div class="w-1 h-1 rounded-full ${vColor.solid}"></div><span class="text-[7px] ${vColor.text} font-bold">${row.vendor || '-'}</span></div></td>${cells}</tr>`;
+                return `<tr class="hover:bg-slate-50/50 transition"><td class="p-3 font-bold text-slate-300 sticky-col border-r border-slate-100">${idx+1}</td><td class="p-4 sticky-col border-r border-slate-100 shadow-sm bg-white text-left"><h4 class="font-bold text-slate-700 uppercase leading-tight text-xs text-left">${row.partName}</h4><div class="flex items-center gap-2 mt-1.5 text-left"><span class="text-[8px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">${row.moldId}</span><span class="text-[8px] ${vColor.text} font-bold">${row.vendor || '-'}</span></div></td>${cells}</tr>`;
             }).join('');
-            const dTitle = document.getElementById('dashYearTitle'); if (dTitle) dTitle.innerText = dYear;
+            document.getElementById('dashYearTitle').innerText = dYear;
         }
 
-        // 🟢 ACTIONS (SAFE & ROBUST)
         async function submitData(event) {
-            event.preventDefault(); const btn = document.getElementById('submitBtn'); if(btn) { btn.disabled = true; btn.innerHTML = `<div class="loader"></div>`; }
+            event.preventDefault(); const btn = document.getElementById('submitBtn'); 
+            if(btn) { btn.disabled = true; btn.innerHTML = `<div class="loader"></div> กำลังบันทึก...`; }
             try {
                 saveCurrentCheckboxes(); 
                 const payload = { actionType: "UPDATE", moldId: document.getElementById('moldId').value.trim().toUpperCase(), partName: document.getElementById('partName').value, vendor: document.getElementById('vendor').value, responsiblePerson: document.getElementById('responsiblePerson').value, cavity: document.getElementById('cavity').value, yearlyVolume: document.getElementById('yearlyVolume').value, currentShots: document.getElementById('currentShots').value, targetShots: document.getElementById('targetShots').value, nextPmDate: document.getElementById('nextPmDate').value, pmMonths: JSON.stringify(currentEditingPlan) };
                 await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                closeDropdownForm(); setTimeout(fetchData, 1500); 
-            } catch (e) { alert("Error"); } finally { if(btn) { btn.disabled = false; btn.innerHTML = `บันทึกข้อมูลหลัก`; } }
+                closeDropdownForm(); setTimeout(fetchData, 1000); 
+            } catch (e) { alert("Error connecting to server"); } finally { if(btn) { btn.disabled = false; btn.innerHTML = `บันทึกข้อมูลหลัก`; } }
         }
 
         async function submitModalAction(event) {
-            event.preventDefault(); const btn = document.getElementById('modalSubmitBtn'); const moldId = document.getElementById('modalMoldIdHidden').value;
-            if(btn) { btn.disabled = true; btn.innerHTML = `<div class="loader"></div> Processing...`; }
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s Timeout
-            
+            event.preventDefault(); const btn = document.getElementById('modalSubmitBtn'); 
+            const moldId = document.getElementById('modalMoldIdHidden').value;
+            if(btn) { btn.disabled = true; btn.innerHTML = `<div class="loader"></div> กำลังประมวลผล...`; }
             try {
                 const base = allMoldsData[moldId] || {};
                 const payload = { actionType: "TPM", moldId, actionDate: document.getElementById('modalActionDate').value, responsiblePerson: document.getElementById('modalResponsiblePerson').value, pmDetails: document.getElementById('modalPmDetails').value.trim(), nextPmDate: document.getElementById('modalNextPmDate').value, pmChecklist: Array.from(document.querySelectorAll('#checklistContainer input:checked')).map(i => i.value).join(','), partName: base.partName, vendor: base.vendor, cavity: base.cavity, yearlyVolume: base.yearlyVolume, currentShots: 0, targetShots: base.targetShots, pmMonths: base.pmMonths };
                 const f = document.getElementById('modalImageFile'); if (f && f.files.length) payload.imageData = await compressImage(f.files[0]);
-                
-                await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload), signal: controller.signal });
-                if (isSharedMode) { document.getElementById('tpmActionForm')?.classList.add('hidden'); document.getElementById('sharedSuccessMsg')?.classList.remove('hidden'); } else { closeModal(); setTimeout(fetchData, 1500); }
-            } catch (e) { 
-                alert(e.name === 'AbortError' ? "ส่งข้อมูลช้าเกินไป (Timeout) กรุณาลองใหม่อีกครั้ง" : "เกิดข้อผิดพลาดในการบันทึก"); 
-            } finally { 
-                clearTimeout(timeoutId);
-                if(btn) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> บันทึกข้อมูล TPM`; }
-            }
+                await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                if (isSharedMode) { document.getElementById('tpmActionForm').classList.add('hidden'); document.getElementById('sharedSuccessMsg').classList.remove('hidden'); } 
+                else { closeModal(); setTimeout(fetchData, 1000); }
+            } catch (e) { alert("Submission failed: " + e.message); } finally { if(btn) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> ยืนยันบันทึกผลงาน TPM`; } }
         }
 
-        // 🛠️ UI HELPERS
+        function initChecklistUI() { 
+            const c = document.getElementById('checklistContainer'); if (!c) return;
+            c.innerHTML = CHECKLIST_ITEMS.map((item, idx) => `<div class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition"><div class="flex flex-col pr-4 text-left"><span class="text-xs font-bold text-slate-800 text-left">${item.title}</span><span class="text-[10px] text-slate-400 italic font-medium text-left">${item.std}</span></div><div class="flex shrink-0 shadow-sm rounded-xl overflow-hidden border border-slate-200"><input type="radio" id="ok_${idx+1}" name="check_${idx+1}" value="OK" class="hidden radio-ok" checked><label for="ok_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white border-r">OK</label><input type="radio" id="ng_${idx+1}" name="check_${idx+1}" value="NG" class="hidden radio-ng"><label for="ng_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white">NG</label></div></div>`).join(''); 
+        }
+
+        function initMonthCheckboxes() { 
+            const c = document.getElementById('monthCheckboxGroup'); if (!c) return;
+            c.innerHTML = Array.from({length:12}, (_,i)=>i+1).map(m => `<label class="cursor-pointer"><input type="checkbox" class="hidden pm-month-cb" value="${m}" onchange="autoUpdateNextPmDate()"><span class="block border border-slate-200 rounded-xl py-3 text-center text-[11px] font-bold text-slate-400 bg-white shadow-sm transition-all">${m}</span></label>`).join(''); 
+        }
+
         function fillForm(id) {
             const r = allMoldsData[id]; if(!r) return;
-            const m = document.getElementById('moldId'); if(m) { m.value = r.moldId; m.readOnly = true; m.classList.add('bg-slate-100'); }
-            const pn = document.getElementById('partName'); if(pn) pn.value = r.partName || "";
-            const vn = document.getElementById('vendor'); if(vn) vn.value = r.vendor || "";
-            const rp = document.getElementById('responsiblePerson'); if(rp) rp.value = r.responsiblePerson || "";
-            const cv = document.getElementById('cavity'); if(cv) cv.value = r.cavity || 1;
-            const yv = document.getElementById('yearlyVolume'); if(yv) yv.value = r.yearlyVolume || 0;
-            const cs = document.getElementById('currentShots'); if(cs) cs.value = r.currentShots || 0;
-            const ts = document.getElementById('targetShots'); if(ts) ts.value = r.targetShots || 30000;
-            currentEditingPlan = parsePmMonths(r.pmMonths); 
-            currentPlanYear = new Date().getFullYear().toString();
-            const yS = document.getElementById('planYearSelector'); if(yS) yS.value = currentPlanYear;
-            loadCheckboxesForYear();
-            const nD = document.getElementById('nextPmDate'); if(nD) nD.value = String(r.nextPmDate).split(/[ T]/)[0];
+            const m = document.getElementById('moldId'); m.value = r.moldId; m.readOnly = true; m.classList.add('bg-slate-100');
+            document.getElementById('partName').value = r.partName || "";
+            document.getElementById('vendor').value = r.vendor || "";
+            document.getElementById('responsiblePerson').value = r.responsiblePerson || "";
+            document.getElementById('cavity').value = r.cavity || 1;
+            document.getElementById('yearlyVolume').value = r.yearlyVolume || 0;
+            document.getElementById('currentShots').value = r.currentShots || 0;
+            document.getElementById('targetShots').value = r.targetShots || 30000;
+            currentEditingPlan = parsePmMonths(r.pmMonths); currentPlanYear = new Date().getFullYear().toString();
+            document.getElementById('planYearSelector').value = currentPlanYear;
+            loadCheckboxesForYear(); document.getElementById('nextPmDate').value = String(r.nextPmDate).split(/[ T]/)[0];
             calculateDaily(); openDropdownForm(); window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openModal(id) {
             const m = allMoldsData[id]; if(!m) return;
-            const pD = document.getElementById('modalPartNameDisplay'); if(pD) pD.innerText = m.partName || "-";
-            const hId = document.getElementById('modalHeaderId'); if(hId) hId.innerText = m.moldId;
-            const iD = document.getElementById('modalMoldIdDisplay'); if(iD) iD.innerText = m.moldId;
-            const vD = document.getElementById('modalVendorDisplay'); if(vD) vD.innerText = m.vendor || "No Vendor";
-            const hI = document.getElementById('modalMoldIdHidden'); if(hI) hI.value = m.moldId;
-            const aD = document.getElementById('modalActionDate'); if(aD) aD.valueAsDate = new Date();
-            const rP = document.getElementById('modalResponsiblePerson'); if(rP) rP.value = m.responsiblePerson || "";
-            
+            document.getElementById('modalPartNameDisplay').innerText = m.partName || "-";
+            document.getElementById('modalHeaderId').innerText = m.moldId;
+            document.getElementById('modalMoldIdDisplay').innerText = m.moldId;
+            document.getElementById('modalVendorDisplay').innerText = m.vendor || "No Vendor";
+            document.getElementById('modalMoldIdHidden').value = m.moldId;
+            document.getElementById('modalActionDate').valueAsDate = new Date();
+            document.getElementById('modalResponsiblePerson').value = m.responsiblePerson || "";
             const autoNext = calculateNextPlannedDate(m.pmMonths, new Date());
-            const nI = document.getElementById('modalNextPmDate');
-            if(nI) nI.value = autoNext || String(m.nextPmDate).split(/[ T]/)[0];
-            
+            document.getElementById('modalNextPmDate').value = autoNext || String(m.nextPmDate).split(/[ T]/)[0];
             document.querySelectorAll('.radio-ok').forEach(r => r.checked = true);
-            const mod = document.getElementById('tpmModal'); if(mod) mod.classList.remove('hidden');
+            document.getElementById('tpmModal').classList.remove('hidden');
         }
 
         function switchTab(t) { 
             const m = document.getElementById('manageView'), d = document.getElementById('dashboardView'), bm = document.getElementById('btnTabManage'), bd = document.getElementById('btnTabDashboard');
-            if(t==='manage') { m.classList.remove('hidden'); d.classList.add('hidden'); bm.className = "flex-1 py-3.5 text-xs font-bold rounded-[18px] bg-white shadow-md text-blue-600 transition-all"; bd.className="flex-1 py-3.5 text-xs font-bold rounded-[18px] text-slate-500 transition-all"; renderTable(); }
-            else { m.classList.add('hidden'); d.classList.remove('hidden'); bd.className = "flex-1 py-3.5 text-xs font-bold rounded-[18px] bg-white shadow-md text-purple-600 transition-all"; bm.className="flex-1 py-3.5 text-xs font-bold rounded-[18px] text-slate-500 transition-all"; renderDashboard(); }
+            if(t==='manage') { m.classList.remove('hidden'); d.classList.add('hidden'); bm.className = "flex-1 py-3.5 text-xs font-bold rounded-[20px] bg-white shadow-md text-blue-600 transition-all"; bd.className="flex-1 py-3.5 text-xs font-bold rounded-[20px] text-slate-500 transition-all"; } 
+            else { m.classList.add('hidden'); d.classList.remove('hidden'); bd.className = "flex-1 py-3.5 text-xs font-bold rounded-[20px] bg-white shadow-md text-blue-600 transition-all"; bm.className="flex-1 py-3.5 text-xs font-bold rounded-[20px] text-slate-500 transition-all"; }
         }
-        function initChecklistUI() { const c = document.getElementById('checklistContainer'); if (c) c.innerHTML = CHECKLIST_ITEMS.map((item, idx) => `<div class="flex items-center justify-between p-4 px-6 bg-white transition text-left"><div class="flex flex-col text-left"><span class="text-xs font-bold leading-tight text-left">${item.title}</span><span class="text-[9px] text-slate-400 italic text-left">${item.std}</span></div><div class="flex shrink-0 shadow-sm rounded-xl overflow-hidden border border-slate-200"><input type="radio" id="ok_${idx+1}" name="check_${idx+1}" value="OK" class="hidden radio-ok" checked><label for="ok_${idx+1}" class="px-5 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white border-r">OK</label><input type="radio" id="ng_${idx+1}" name="check_${idx+1}" value="NG" class="hidden radio-ng"><label for="ng_${idx+1}" class="px-5 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white">NG</label></div></div>`).join(''); }
-        function initMonthCheckboxes() { const c = document.getElementById('monthCheckboxGroup'); if (c) c.innerHTML = Array.from({length:12}, (_,i)=>i+1).map(m => `<label class="cursor-pointer"><input type="checkbox" class="hidden pm-month-cb" value="${m}" onchange="autoUpdateNextPmDate()"><span class="block border border-slate-200 rounded-2xl py-3 text-center text-[10px] font-bold text-slate-500 bg-white shadow-sm transition-all">${m}</span></label>`).join(''); }
-        function populateYears() { const p = document.getElementById('planYearSelector'), d = document.getElementById('dashboardYearSelector'), c = new Date().getFullYear(); if(p && d) { p.innerHTML = ''; d.innerHTML = ''; [c-1, c, c+1].forEach(y => { p.add(new Option(y, y)); d.add(new Option(y, y)); }); p.value = c; d.value = c; } currentPlanYear = c.toString(); }
+
+        function populateYears() { const p = document.getElementById('planYearSelector'), d = document.getElementById('dashboardYearSelector'), c = new Date().getFullYear(); if(p && d) { p.innerHTML = ''; d.innerHTML = ''; [c, c+1].forEach(y => { p.add(new Option(y, y)); d.add(new Option(y, y)); }); p.value = c; d.value = c; } currentPlanYear = c.toString(); }
         function populateVendorFilters(data) { const vs = [...new Set(data.map(i => i.vendor).filter(v => v))].sort(), m = document.getElementById('filterVendorManage'), d = document.getElementById('filterVendorDash'); [m, d].forEach(sel => { if(sel) { sel.innerHTML = '<option value="">ทุก Vendor</option>'; vs.forEach(v => sel.add(new Option(v, v))); } }); }
-        function openDropdownForm() { const d = document.getElementById('formDropdown'); if(d) d.classList.add('open'); }
-        function closeDropdownForm() { const d = document.getElementById('formDropdown'); if(d) d.classList.remove('open'); clearMainForm(); }
-        function openAddForm() { closeDropdownForm(); openDropdownForm(); const m = document.getElementById('moldId'); if(m) m.focus(); }
-        function closeModal() { if (!isSharedMode) { const t = document.getElementById('tpmModal'); if(t) t.classList.add('hidden'); window.history.pushState({}, '', window.location.href.split('?')[0]); } }
+        function openDropdownForm() { document.getElementById('formDropdown').classList.add('open'); }
+        function closeDropdownForm() { document.getElementById('formDropdown').classList.remove('open'); clearMainForm(); }
+        function openAddForm() { closeDropdownForm(); openDropdownForm(); document.getElementById('moldId').focus(); }
+        function closeModal() { if (!isSharedMode) document.getElementById('tpmModal').classList.add('hidden'); }
         function finishAndClose() { location.reload(); }
-        function dismissAlarm() { alarmDismissed = true; const b = document.getElementById('urgentAlarmBox'); if(b) b.classList.add('hidden'); }
-        function closeHistory() { const h = document.getElementById('historyModal'); if(h) h.classList.add('hidden'); }
-        function changePlanYear() { saveCurrentCheckboxes(); const sel = document.getElementById('planYearSelector'); if(sel) { currentPlanYear = sel.value; loadCheckboxesForYear(); autoUpdateNextPmDate(); } }
-        function autoUpdateNextPmDate() { const c = Array.from(document.querySelectorAll('.pm-month-cb:checked')).map(cb => parseInt(cb.value)).sort((a,b)=>a-b); if (c.length) { const y = document.getElementById('planYearSelector').value; const dateIn = document.getElementById('nextPmDate'); if(dateIn) dateIn.value = `${y}-${String(c[0]).padStart(2, '0')}-01`; } }
+        function dismissAlarm() { alarmDismissed = true; document.getElementById('urgentAlarmBox').classList.add('hidden'); }
+        function closeHistory() { document.getElementById('historyModal').classList.add('hidden'); }
+        function changePlanYear() { saveCurrentCheckboxes(); currentPlanYear = document.getElementById('planYearSelector').value; loadCheckboxesForYear(); autoUpdateNextPmDate(); }
+        function autoUpdateNextPmDate() { const c = Array.from(document.querySelectorAll('.pm-month-cb:checked')).map(cb => parseInt(cb.value)).sort((a,b)=>a-b); if (c.length) { document.getElementById('nextPmDate').value = `${currentPlanYear}-${String(c[0]).padStart(2, '0')}-01`; } }
         function loadCheckboxesForYear() { const p = currentEditingPlan[currentPlanYear] || []; document.querySelectorAll('.pm-month-cb').forEach(cb => cb.checked = p.includes(Number(cb.value))); }
         function saveCurrentCheckboxes() { const selected = Array.from(document.querySelectorAll('.pm-month-cb:checked')).map(cb => Number(cb.value)); if(currentPlanYear) currentEditingPlan[currentPlanYear] = selected; }
-        function calculateDaily() { const c = parseInt(document.getElementById('cavity')?.value) || 1, v = parseInt(document.getElementById('yearlyVolume')?.value) || 0; const daily = Math.ceil((v / c) / 300); const text = document.getElementById('dailyAutoText'); if(text) text.innerText = daily.toLocaleString(); }
-        function clearMainForm() { const form = document.getElementById('moldForm'); if(form) form.reset(); const m = document.getElementById('moldId'); if(m) { m.readOnly = false; m.classList.remove('bg-slate-100'); } currentEditingPlan = {}; loadCheckboxesForYear(); }
-        function copyShareLink(id) { const url = `${window.location.href.split('?')[0]}?id=${id}`, i = document.createElement("input"); document.body.appendChild(i); i.value = url; i.select(); document.execCommand("copy"); document.body.removeChild(i); const t = document.getElementById('copyToast'); t.classList.remove('hidden'); t.classList.add('flex'); setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 2500); }
+        function calculateDaily() { const c = parseInt(document.getElementById('cavity')?.value) || 1, v = parseInt(document.getElementById('yearlyVolume')?.value) || 0; const daily = Math.ceil((v / c) / 300); document.getElementById('dailyAutoText').innerText = daily.toLocaleString(); }
+        function clearMainForm() { document.getElementById('moldForm').reset(); const m = document.getElementById('moldId'); m.readOnly = false; m.classList.remove('bg-slate-100'); currentEditingPlan = {}; loadCheckboxesForYear(); }
+        function copyShareLink(id) { const url = `${window.location.href.split('?')[0]}?id=${id}`; const i = document.createElement("input"); document.body.appendChild(i); i.value = url; i.select(); document.execCommand("copy"); document.body.removeChild(i); const t = document.getElementById('copyToast'); t.classList.remove('hidden'); t.classList.add('flex'); setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 2500); }
         function scrollToUrgent() { document.getElementById('filterStatusManage').value = 'LATE'; renderTable(); }
+
+        function openImagePreview(url) {
+            const mod = document.getElementById('imagePreviewModal');
+            const img = document.getElementById('fullPreviewImg');
+            if (mod && img && url) {
+                img.src = url;
+                mod.classList.remove('hidden');
+                mod.classList.add('active');
+            }
+        }
+
+        function closeImagePreview() {
+            const mod = document.getElementById('imagePreviewModal');
+            if (mod) {
+                mod.classList.add('hidden');
+                mod.classList.remove('active');
+            }
+        }
 
         function setupSharedForm() {
             const id = new URLSearchParams(window.location.search).get('id');
@@ -450,32 +730,82 @@
             document.getElementById('modalMoldIdDisplay').innerText = mold.moldId;
             document.getElementById('modalActionDate').valueAsDate = new Date();
             const autoNext = calculateNextPlannedDate(mold.pmMonths, new Date());
-            const nI = document.getElementById('modalNextPmDate');
-            if(nI) nI.value = autoNext || String(mold.nextPmDate).split(/[ T]/)[0];
+            document.getElementById('modalNextPmDate').value = autoNext || String(mold.nextPmDate).split(/[ T]/)[0];
         }
 
         function viewHistory(id) {
             const m = allMoldsData[id]; if (!m) return;
             const c = document.getElementById('histContent'); 
-            const disp = document.getElementById('histMoldIdDisplay'); if(disp) disp.innerText = id;
+            document.getElementById('histMoldIdDisplay').innerText = id;
             let l = []; try { l = JSON.parse(m.pmHistoryLog || "[]"); } catch(e) {}
-            if (!l.length && m.lastPmDate) l.push({ date: m.lastPmDate, pic: m.responsiblePerson, details: m.lastPmDetails, checklist: m.pmChecklist });
+            if (!l.length && m.lastPmDate) l.push({ date: m.lastPmDate, pic: m.responsiblePerson, details: m.lastPmDetails, checklist: m.pmChecklist, image: m.pmImageUrl });
+            
+            // ดึงรูปล่าสุดจาก pmImageUrl มาแสดง กรณีที่ในประวัติ log ลืมบันทึกรูป
+            if (l.length > 0 && !l[l.length - 1].image && m.pmImageUrl) {
+                l[l.length - 1].image = m.pmImageUrl;
+            }
+            
             c.innerHTML = l.map((log, index) => {
-                const checkHtml = CHECKLIST_ITEMS.map((item, idx) => { const s = (log.checklist || "").split(',')[idx] || "N/A", color = (s === 'OK') ? 'text-emerald-600' : (s === 'NG' ? 'text-rose-500' : 'text-slate-400'); return `<div class="flex justify-between items-center border-b border-slate-100 py-3 text-left"><span class="text-[10px] w-3/4 text-slate-500 text-left leading-tight">${item.title}</span><span class="${color} font-bold text-[9px] border border-slate-100 px-2 py-0.5 rounded-lg bg-white shadow-sm">${s}</span></div>`; }).join('');
-                return `<div class="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 animate-fade-in text-left"><div class="flex justify-between items-start mb-4"><span class="text-xs font-bold text-slate-800">${log.pic || 'ช่าง'}</span><span class="text-[9px] font-bold text-slate-400 uppercase bg-slate-50 px-2 py-1 rounded-lg">${String(log.date).split(/[ T]/)[0]}</span></div><div class="text-[11px] text-slate-600 mb-5 leading-relaxed bg-slate-50/50 p-4 rounded-[20px] border">${log.details || '-'}</div>${log.image ? `<img src="${log.image}" class="w-full h-52 object-cover rounded-[24px] mb-5 border shadow-md">` : ''}<button type="button" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full text-blue-600 text-[10px] font-bold py-3 border rounded-xl active:bg-blue-50">VIEW CHECKLIST</button><div class="hidden mt-4 p-2 bg-white rounded-[24px] border border-slate-100 shadow-inner">${checkHtml}</div></div>`;
+                const checkHtml = CHECKLIST_ITEMS.map((item, idx) => { 
+                    const s = (log.checklist || "").split(',')[idx] || "N/A";
+                    const color = (s === 'OK') ? 'text-emerald-600' : (s === 'NG' ? 'text-rose-500' : 'text-slate-400'); 
+                    return `<div class="flex justify-between items-center border-b border-slate-100 py-3 text-[11px] text-left"><span class="text-slate-500 font-medium text-left">${item.title}</span><span class="${color} font-bold text-left">${s}</span></div>`; 
+                }).join('');
+                
+                const imageSection = log.image ? `
+                    <div class="relative group mt-4 mb-6 overflow-hidden rounded-[24px] shadow-lg border-2 border-slate-50 cursor-pointer" onclick="openImagePreview('${log.image}')">
+                        <img src="${log.image}" class="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                            <i class="fas fa-search-plus text-2xl mb-2"></i>
+                            <span class="text-[9px] font-bold uppercase tracking-widest">คลิกเพื่อดูรูปขยาย</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="bg-blue-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1"><i class="fas fa-image"></i> PREVIEW</span>
+                        </div>
+                    </div>` : '';
+
+                return `
+                    <div class="relative animate-fade-in text-left">
+                        <div class="timeline-dot"></div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center font-black text-xs border-2 border-white shadow-sm uppercase">${(log.pic||'T').substring(0,1)}</div>
+                                <div>
+                                    <h5 class="text-xs font-black text-slate-800 leading-tight">${log.pic || 'Unknown'}</h5>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Technician PIC</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">${String(log.date).split(/[ T]/)[0]}</span>
+                        </div>
+                        
+                        <div class="bg-slate-50/50 p-5 rounded-[24px] border border-slate-100 mt-4 mb-4">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-quote-left text-slate-300"></i> รายละเอียดการบำรุงรักษา</p>
+                            <p class="text-xs text-slate-700 leading-relaxed font-medium italic">"${log.details || 'ไม่มีรายละเอียดเพิ่มเติม'}"</p>
+                        </div>
+
+                        ${imageSection}
+
+                        <div class="flex gap-2">
+                            <button type="button" onclick="this.parentElement.nextElementSibling.classList.toggle('hidden')" class="flex-1 bg-white hover:bg-slate-50 text-slate-500 text-[9px] font-bold py-3 border border-slate-200 rounded-xl transition-all tracking-widest uppercase flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fas fa-list-check"></i> Checklist Result
+                            </button>
+                            ${log.image ? `<button type="button" onclick="openImagePreview('${log.image}')" class="bg-blue-600 text-white w-11 rounded-xl flex items-center justify-center shadow-md active:scale-95"><i class="fas fa-expand-alt text-xs"></i></button>` : ''}
+                        </div>
+                        <div class="hidden mt-3 p-5 bg-slate-50/30 rounded-[24px] border border-slate-100 divide-y divide-slate-100 text-left">${checkHtml}</div>
+                    </div>`;
             }).join('');
-            const mod = document.getElementById('historyModal'); if(mod) mod.classList.remove('hidden');
+            document.getElementById('historyModal').classList.remove('hidden');
         }
 
         function updateStats(data) { 
             let late = 0, near = 0, normal = 0; 
             data.forEach(r => { let pri = calculateMoldPriority(r); if (pri === "LATE") late++; else if (pri === "NEAR") near++; else normal++; }); 
-            const st = document.getElementById('statTotal'); if(st) st.innerText = data.length; 
-            const sl = document.getElementById('statLate'); if(sl) sl.innerText = late; 
-            const sn = document.getElementById('statNear'); if(sn) sn.innerText = near; 
-            const sm = document.getElementById('statNormal'); if(sm) sm.innerText = normal; 
+            document.getElementById('statTotal').innerText = data.length; 
+            document.getElementById('statLate').innerText = late; 
+            document.getElementById('statNear').innerText = near; 
+            document.getElementById('statNormal').innerText = normal; 
             const al = document.getElementById('urgentAlarmBox'); 
-            if (late > 0 && !alarmDismissed) { if(al) al.classList.remove('hidden'); } else { if(al) al.classList.add('hidden'); }
+            if (late > 0 && !alarmDismissed) al.classList.remove('hidden'); else al.classList.add('hidden'); 
         }
     </script>
 </body>
