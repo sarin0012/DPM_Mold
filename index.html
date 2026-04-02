@@ -79,37 +79,18 @@
             margin-bottom: 2rem; 
         }
 
-        /* Timeline Dashboard Scroll and Freeze Settings */
         .timeline-wrapper { 
             overflow: auto; 
             border-radius: 20px; 
             border: 1px solid #f1f5f9; 
             scrollbar-width: thin;
-            max-height: 600px; /* Vertical Scroll for table */
+            max-height: 600px; 
         }
 
-        .sticky-col-no { 
-            position: sticky; 
-            left: 0; 
-            z-index: 30; 
-            background: white; 
-        }
+        .sticky-col-no { position: sticky; left: 0; z-index: 30; background: white; }
+        .sticky-col-id { position: sticky; left: 48px; z-index: 30; background: white; }
+        .sticky-header { position: sticky; top: 0; z-index: 40; background: white; }
 
-        .sticky-col-id { 
-            position: sticky; 
-            left: 48px; /* Offset by width of Col No. */
-            z-index: 30; 
-            background: white; 
-        }
-
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            background: white;
-        }
-
-        /* Shadow when scrolling headers */
         .sticky-col-id::after {
             content: '';
             position: absolute;
@@ -129,27 +110,17 @@
             letter-spacing: 0.05em;
         }
 
-        .search-input:focus {
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
+        .search-input:focus { box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Image Preview Overlay */
         #imagePreviewModal.active { display: flex; animation: fadeIn 0.3s ease-out; }
 
-        /* Timeline History Styles */
-        .history-timeline {
-            position: relative;
-            padding-left: 2rem;
-        }
+        .history-timeline { position: relative; padding-left: 2rem; }
         .history-timeline::before {
             content: '';
             position: absolute;
@@ -245,7 +216,7 @@
 
         <!-- 📂 VIEW 1: MANAGE -->
         <div id="manageView" class="animate-fade-in">
-            <!-- Master Database Form (Same as before) -->
+            <!-- Master Database Form -->
             <div id="formDropdown" class="glass-card mb-8">
                 <div class="p-8">
                     <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-5">
@@ -330,7 +301,7 @@
             <div id="mobileCardContainer" class="grid grid-cols-1 md:hidden gap-6"></div>
         </div>
 
-        <!-- 📈 VIEW 2: TIMELINE DASHBOARD (FREEZE MODIFIED) -->
+        <!-- 📈 VIEW 2: TIMELINE DASHBOARD -->
         <div id="dashboardView" class="hidden animate-fade-in">
             <div class="glass-card p-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-100 pb-8 text-left">
@@ -367,17 +338,11 @@
                         <tbody id="dashboardBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
-
-                <div class="mt-8 flex flex-wrap gap-6 justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <div class="flex items-center gap-2"><i class="fas fa-wrench text-blue-500"></i> แผนรอบถัดไป</div>
-                    <div class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> ดำเนินการแล้ว</div>
-                    <div class="flex items-center gap-2"><i class="fas fa-wrench text-slate-200"></i> แผนที่ตั้งไว้</div>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- 🛠️ MODAL TPM RECORD (Same as before) -->
+    <!-- 🛠️ MODAL TPM RECORD -->
     <div id="tpmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div id="tpmModalContent" class="bg-white rounded-t-[40px] sm:rounded-[32px] shadow-2xl w-full max-w-xl overflow-hidden max-h-[95vh] flex flex-col animate-fade-in">
             <div class="px-8 py-6 border-b flex justify-between items-center shrink-0">
@@ -409,11 +374,17 @@
                     </div>
                 </div>
 
-                <div class="mb-6"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-4 flex items-center gap-2"><i class="fas fa-clipboard-check text-blue-500"></i> TPM Inspection Checklist</p><div id="checklistContainer" class="bg-slate-50/50 rounded-[28px] border border-slate-100 divide-y divide-slate-100 overflow-hidden"></div></div>
+                <!-- CHECKLIST AREA -->
+                <div class="mb-6">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-4 flex items-center gap-2">
+                        <i class="fas fa-clipboard-check text-blue-500"></i> TPM Inspection Checklist
+                    </p>
+                    <div id="checklistContainer" class="bg-slate-50/50 rounded-[28px] border border-slate-100 divide-y divide-slate-100 overflow-hidden"></div>
+                </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block text-left">รายละเอียดการบำรุงรักษา *</label>
-                    <textarea id="modalPmDetails" rows="4" required class="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-sm outline-none mb-6 focus:ring-2 focus:ring-blue-500 shadow-inner" placeholder="ระบุอาการหรือผลการตรวจสอบเพิ่มเติม..."></textarea>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block text-left">รายละเอียดการบำรุงรักษาเพิ่มเติม *</label>
+                    <textarea id="modalPmDetails" rows="3" required class="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-sm outline-none mb-6 focus:ring-2 focus:ring-blue-500 shadow-inner" placeholder="ระบุอาการหรือผลการตรวจสอบโดยรวม..."></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
@@ -422,15 +393,14 @@
                         <input type="file" id="modalImageFile" accept="image/*" class="w-full text-[11px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700">
                     </div>
                     <div class="bg-amber-50/50 p-6 rounded-[28px] border border-amber-100">
-                        <label class="block text-[10px] font-bold text-amber-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-calendar-alt mr-2"></i> กำหนดรอบถัดไป</label>
+                        <label class="block text-[10px] font-bold text-amber-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-calendar-alt mr-2 text-left"></i> กำหนดรอบถัดไป</label>
                         <input type="date" id="modalNextPmDate" required class="w-full bg-transparent border-b border-amber-200 font-bold text-sm outline-none text-slate-800">
                     </div>
                 </div>
 
                 <input type="hidden" id="modalMoldIdHidden">
                 <button type="submit" id="modalSubmitBtn" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-5 rounded-[24px] shadow-2xl active:scale-95 transition-all text-lg flex items-center justify-center gap-4">
-                    <i class="fas fa-save"></i> 
-                    ยืนยันบันทึกผลงาน TPM
+                    <i class="fas fa-save"></i> ยืนยันบันทึกผลงาน TPM
                 </button>
             </form>
             
@@ -675,17 +645,76 @@
             if(btn) { btn.disabled = true; btn.innerHTML = `<div class="loader"></div> กำลังประมวลผล...`; }
             try {
                 const base = allMoldsData[moldId] || {};
-                const payload = { actionType: "TPM", moldId, actionDate: document.getElementById('modalActionDate').value, responsiblePerson: document.getElementById('modalResponsiblePerson').value, pmDetails: document.getElementById('modalPmDetails').value.trim(), nextPmDate: document.getElementById('modalNextPmDate').value, pmChecklist: Array.from(document.querySelectorAll('#checklistContainer input:checked')).map(i => i.value).join(','), partName: base.partName, vendor: base.vendor, cavity: base.cavity, yearlyVolume: base.yearlyVolume, currentShots: 0, targetShots: base.targetShots, pmMonths: base.pmMonths };
-                const f = document.getElementById('modalImageFile'); if (f && f.files.length) payload.imageData = await compressImage(f.files[0]);
+                
+                // Collect Checklist Data with Reasons
+                const checklistResults = CHECKLIST_ITEMS.map((item, idx) => {
+                    const status = document.querySelector(`input[name="check_${idx+1}"]:checked`).value;
+                    if (status === 'NG') {
+                        const reason = document.getElementById(`reason_${idx+1}`).value.trim();
+                        return `NG:${reason || 'ไม่ระบุเหตุผล'}`;
+                    }
+                    return 'OK';
+                }).join(',');
+
+                const payload = { 
+                    actionType: "TPM", 
+                    moldId, 
+                    actionDate: document.getElementById('modalActionDate').value, 
+                    responsiblePerson: document.getElementById('modalResponsiblePerson').value, 
+                    pmDetails: document.getElementById('modalPmDetails').value.trim(), 
+                    nextPmDate: document.getElementById('modalNextPmDate').value, 
+                    pmChecklist: checklistResults,
+                    partName: base.partName, 
+                    vendor: base.vendor, 
+                    cavity: base.cavity, 
+                    yearlyVolume: base.yearlyVolume, 
+                    currentShots: 0, 
+                    targetShots: base.targetShots, 
+                    pmMonths: base.pmMonths 
+                };
+                
+                const f = document.getElementById('modalImageFile'); 
+                if (f && f.files.length) payload.imageData = await compressImage(f.files[0]);
+                
                 await fetch(GAS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                if (isSharedMode) { document.getElementById('tpmActionForm').classList.add('hidden'); document.getElementById('sharedSuccessMsg').classList.remove('hidden'); } 
-                else { closeModal(); setTimeout(fetchData, 1000); }
+                
+                if (isSharedMode) { 
+                    document.getElementById('tpmActionForm').classList.add('hidden'); 
+                    document.getElementById('sharedSuccessMsg').classList.remove('hidden'); 
+                } else { 
+                    closeModal(); 
+                    setTimeout(fetchData, 1000); 
+                }
             } catch (e) { alert("Submission failed: " + e.message); } finally { if(btn) { btn.disabled = false; btn.innerHTML = `<i class="fas fa-save"></i> ยืนยันบันทึกผลงาน TPM`; } }
+        }
+
+        function toggleReasonField(idx, status) {
+            const field = document.getElementById(`reasonBox_${idx}`);
+            if (status === 'NG') field.classList.remove('hidden');
+            else field.classList.add('hidden');
         }
 
         function initChecklistUI() { 
             const c = document.getElementById('checklistContainer'); if (!c) return;
-            c.innerHTML = CHECKLIST_ITEMS.map((item, idx) => `<div class="flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition"><div class="flex flex-col pr-4 text-left"><span class="text-xs font-bold text-slate-800 text-left">${item.title}</span><span class="text-[10px] text-slate-400 italic font-medium text-left">${item.std}</span></div><div class="flex shrink-0 shadow-sm rounded-xl overflow-hidden border border-slate-200"><input type="radio" id="ok_${idx+1}" name="check_${idx+1}" value="OK" class="hidden radio-ok" checked><label for="ok_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white border-r">OK</label><input type="radio" id="ng_${idx+1}" name="check_${idx+1}" value="NG" class="hidden radio-ng"><label for="ng_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white">NG</label></div></div>`).join(''); 
+            c.innerHTML = CHECKLIST_ITEMS.map((item, idx) => `
+                <div class="p-5 bg-white hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex flex-col pr-4 text-left">
+                            <span class="text-xs font-bold text-slate-800 text-left">${item.title}</span>
+                            <span class="text-[10px] text-slate-400 italic font-medium text-left">${item.std}</span>
+                        </div>
+                        <div class="flex shrink-0 shadow-sm rounded-xl overflow-hidden border border-slate-200">
+                            <input type="radio" id="ok_${idx+1}" name="check_${idx+1}" value="OK" class="hidden radio-ok" checked onchange="toggleReasonField(${idx+1}, 'OK')">
+                            <label for="ok_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white border-r">OK</label>
+                            
+                            <input type="radio" id="ng_${idx+1}" name="check_${idx+1}" value="NG" class="hidden radio-ng" onchange="toggleReasonField(${idx+1}, 'NG')">
+                            <label for="ng_${idx+1}" class="px-6 py-2.5 text-[10px] cursor-pointer font-bold text-slate-400 bg-white">NG</label>
+                        </div>
+                    </div>
+                    <div id="reasonBox_${idx+1}" class="hidden animate-fade-in">
+                        <textarea id="reason_${idx+1}" rows="2" class="w-full bg-red-50 border border-red-100 rounded-xl p-3 text-[11px] outline-none focus:ring-1 focus:ring-red-400" placeholder="ระบุเหตุผลที่พบปัญหา (NG)..."></textarea>
+                    </div>
+                </div>`).join(''); 
         }
 
         function initMonthCheckboxes() { 
@@ -720,7 +749,9 @@
             document.getElementById('modalResponsiblePerson').value = m.responsiblePerson || "";
             const autoNext = calculateNextPlannedDate(m.pmMonths, new Date());
             document.getElementById('modalNextPmDate').value = autoNext || String(m.nextPmDate).split(/[ T]/)[0];
-            document.querySelectorAll('.radio-ok').forEach(r => r.checked = true);
+            
+            // Reset checklist and UI
+            initChecklistUI();
             document.getElementById('tpmModal').classList.remove('hidden');
         }
 
@@ -789,9 +820,27 @@
             
             c.innerHTML = l.map((log, index) => {
                 const checkHtml = CHECKLIST_ITEMS.map((item, idx) => { 
-                    const s = (log.checklist || "").split(',')[idx] || "N/A";
-                    const color = (s === 'OK') ? 'text-emerald-600' : (s === 'NG' ? 'text-rose-500' : 'text-slate-400'); 
-                    return `<div class="flex justify-between items-center border-b border-slate-100 py-3 text-[11px] text-left"><span class="text-slate-500 font-medium text-left">${item.title}</span><span class="${color} font-bold text-left">${s}</span></div>`; 
+                    const rawStatus = (log.checklist || "").split(',')[idx] || "N/A";
+                    let displayStatus = rawStatus;
+                    let reasonText = "";
+                    let color = 'text-slate-400';
+
+                    if (rawStatus.startsWith('NG')) {
+                        displayStatus = 'NG';
+                        reasonText = rawStatus.split(':')[1] || 'ไม่ระบุเหตุผล';
+                        color = 'text-rose-500';
+                    } else if (rawStatus === 'OK') {
+                        color = 'text-emerald-600';
+                    }
+
+                    return `
+                        <div class="border-b border-slate-100 py-3 text-left">
+                            <div class="flex justify-between items-center text-[11px]">
+                                <span class="text-slate-500 font-medium text-left">${item.title}</span>
+                                <span class="${color} font-bold text-left">${displayStatus}</span>
+                            </div>
+                            ${reasonText ? `<div class="mt-1 p-2 bg-red-50 rounded-lg text-[10px] text-red-600 font-medium border border-red-100">สาเหตุ: ${reasonText}</div>` : ''}
+                        </div>`; 
                 }).join('');
                 
                 const imageSection = log.image ? `
@@ -800,9 +849,6 @@
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
                             <i class="fas fa-search-plus text-2xl mb-2"></i>
                             <span class="text-[9px] font-bold uppercase tracking-widest">คลิกเพื่อดูรูปขยาย</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="bg-blue-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1"><i class="fas fa-image"></i> PREVIEW</span>
                         </div>
                     </div>` : '';
 
