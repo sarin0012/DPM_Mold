@@ -15,7 +15,7 @@
             --warning: #f59e0b;
             --danger: #ef4444;
             --slate-bg: #f8fafc;
-        }๐
+        }
 
         body { 
             font-family: 'Prompt', sans-serif; 
@@ -79,18 +79,46 @@
             margin-bottom: 2rem; 
         }
 
+        /* Timeline Dashboard Scroll and Freeze Settings */
         .timeline-wrapper { 
-            overflow-x: auto; 
+            overflow: auto; 
             border-radius: 20px; 
             border: 1px solid #f1f5f9; 
             scrollbar-width: thin;
+            max-height: 600px; /* Vertical Scroll for table */
         }
 
-        .sticky-col { 
+        .sticky-col-no { 
             position: sticky; 
             left: 0; 
-            z-index: 20; 
+            z-index: 30; 
             background: white; 
+        }
+
+        .sticky-col-id { 
+            position: sticky; 
+            left: 48px; /* Offset by width of Col No. */
+            z-index: 30; 
+            background: white; 
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: white;
+        }
+
+        /* Shadow when scrolling headers */
+        .sticky-col-id::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(to right, rgba(0,0,0,0.05), transparent);
+            pointer-events: none;
         }
 
         .status-pill { 
@@ -217,7 +245,7 @@
 
         <!-- 📂 VIEW 1: MANAGE -->
         <div id="manageView" class="animate-fade-in">
-            <!-- 🔽 DROPDOWN FORM -->
+            <!-- Master Database Form (Same as before) -->
             <div id="formDropdown" class="glass-card mb-8">
                 <div class="p-8">
                     <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-5">
@@ -229,31 +257,28 @@
                     </div>
                     <form id="moldForm" onsubmit="submitData(event)">
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <!-- Left Col -->
                             <div class="space-y-5">
-                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Mold ID *</label><input type="text" id="moldId" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-inner text-slate-800"></div>
-                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">ชื่อโมล / ชิ้นงาน *</label><input type="text" id="partName" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"></div>
+                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">Mold ID *</label><input type="text" id="moldId" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-inner text-slate-800"></div>
+                                <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">ชื่อโมล / ชิ้นงาน *</label><input type="text" id="partName" required class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Vendor</label><input type="text" id="vendor" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-bold shadow-inner"></div>
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">ผู้ดูแล (PIC)</label><input type="text" id="responsiblePerson" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-semibold shadow-inner"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">Vendor</label><input type="text" id="vendor" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-bold shadow-inner"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">ผู้ดูแล (PIC)</label><input type="text" id="responsiblePerson" class="w-full bg-slate-50 border-0 p-4 rounded-2xl text-sm outline-none font-semibold shadow-inner"></div>
                                 </div>
                             </div>
-                            <!-- Middle Col -->
                             <div class="space-y-5">
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Cavity</label><input type="number" id="cavity" value="1" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">เป้าหมายผลิต/ปี</label><input type="number" id="yearlyVolume" value="0" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">Cavity</label><input type="number" id="cavity" value="1" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">เป้าหมายผลิต/ปี</label><input type="number" id="yearlyVolume" value="0" oninput="calculateDaily()" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold"></div>
                                 </div>
                                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl flex justify-between items-center border border-blue-100">
                                     <span class="text-[11px] font-bold text-blue-600 uppercase tracking-wider">AUTO ADD / DAY</span>
                                     <span id="dailyAutoText" class="font-black text-blue-800 text-lg">0</span>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Accum. Shots</label><input type="number" id="currentShots" value="0" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-blue-600"></div>
-                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1">Target TPM</label><input type="number" id="targetShots" value="30000" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-red-500"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">Accum. Shots</label><input type="number" id="currentShots" value="0" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-blue-600"></div>
+                                    <div><label class="text-[11px] font-bold text-slate-400 uppercase mb-2 block ml-1 text-left">Target TPM</label><input type="number" id="targetShots" value="30000" class="w-full bg-slate-50 border-0 p-4 rounded-2xl font-bold text-red-500"></div>
                                 </div>
                             </div>
-                            <!-- Right Col (Plan) -->
                             <div class="bg-slate-50/80 p-6 rounded-[32px] border border-slate-200">
                                 <div class="flex justify-between items-center mb-4">
                                     <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">แผน TPM รายปี</p>
@@ -261,7 +286,7 @@
                                 </div>
                                 <div class="grid grid-cols-4 gap-2" id="monthCheckboxGroup"></div>
                                 <div class="mt-6">
-                                    <label class="text-[11px] font-bold text-slate-400 uppercase block mb-2 ml-1">Next PM Date</label>
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase block mb-2 ml-1 text-left">Next PM Date</label>
                                     <input type="date" id="nextPmDate" required class="w-full border-2 border-white bg-white p-4 rounded-2xl text-sm font-bold shadow-sm focus:border-blue-500 outline-none">
                                 </div>
                                 <button type="submit" id="submitBtn" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-4.5 rounded-2xl font-bold shadow-xl shadow-blue-100 active:scale-95 transition-all">บันทึกข้อมูลหลัก</button>
@@ -271,17 +296,16 @@
                 </div>
             </div>
 
-            <!-- List Search & Filter Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-end gap-4 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-end gap-4 mb-6 text-left">
                 <div class="text-left">
                     <h2 class="text-2xl font-black text-slate-800 tracking-tight">รายการแม่พิมพ์</h2>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1" id="rowCountLabel">0 units operational</p>
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <select id="filterVendorManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none appearance-none hover:bg-slate-50 cursor-pointer">
+                    <select id="filterVendorManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none hover:bg-slate-50 cursor-pointer">
                         <option value="">ทุก Vendor</option>
                     </select>
-                    <select id="filterStatusManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none appearance-none hover:bg-slate-50 cursor-pointer">
+                    <select id="filterStatusManage" onchange="renderTable()" class="flex-1 sm:flex-none bg-white border border-slate-200 px-5 py-3 rounded-2xl text-xs font-bold shadow-sm outline-none hover:bg-slate-50 cursor-pointer">
                         <option value="">ทุกสถานะ</option>
                         <option value="LATE">🔴 ถึงกำหนด</option>
                         <option value="NEAR">🟡 ใกล้ถึง</option>
@@ -290,7 +314,6 @@
                 </div>
             </div>
 
-            <!-- Hybrid List Container -->
             <div class="hidden md:block glass-card overflow-hidden">
                 <table class="min-w-full text-sm">
                     <thead>
@@ -304,17 +327,16 @@
                     <tbody id="desktopTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
-            
             <div id="mobileCardContainer" class="grid grid-cols-1 md:hidden gap-6"></div>
         </div>
 
-        <!-- 📈 VIEW 2: TIMELINE DASHBOARD -->
+        <!-- 📈 VIEW 2: TIMELINE DASHBOARD (FREEZE MODIFIED) -->
         <div id="dashboardView" class="hidden animate-fade-in">
             <div class="glass-card p-8">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-100 pb-8">
-                    <div>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-100 pb-8 text-left">
+                    <div class="text-left">
                         <h2 class="text-2xl font-black text-slate-800 tracking-tight">Maintenance Timeline <span id="dashYearTitle" class="text-blue-600">2026</span></h2>
-                        <p class="text-xs text-slate-400 mt-1 font-medium italic text-left">ตารางแสดงแผนและผลการทำ TPM ประจำปี</p>
+                        <p class="text-xs text-slate-400 mt-1 font-medium italic text-left">ตารางแสดงแผนและผลการทำ TPM ประจำปี (เลื่อนดูข้อมูลได้)</p>
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
                         <select id="filterVendorDash" onchange="renderDashboard()" class="flex-1 md:w-48 bg-slate-100/50 border-0 p-3.5 rounded-2xl text-xs font-bold outline-none shadow-inner"><option value="">ทุก Vendor</option></select>
@@ -324,14 +346,25 @@
                 
                 <div class="timeline-wrapper shadow-inner bg-slate-50/30">
                     <table class="min-w-full text-[11px] border-collapse">
-                        <thead class="bg-white">
+                        <thead class="sticky-header">
                             <tr class="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
-                                <th class="p-4 w-12 sticky-col shadow-sm">#</th>
-                                <th class="p-4 min-w-[220px] text-left sticky-col border-r border-slate-100 shadow-sm">Tool Identity</th>
-                                <th class="p-4 w-14 border-b">ม.ค.</th><th class="p-4 w-14 border-b">ก.พ.</th><th class="p-4 w-14 border-b">มี.ค.</th><th class="p-4 w-14 border-b">เม.ย.</th><th class="p-4 w-14 border-b">พ.ค.</th><th class="p-4 w-14 border-b">มิ.ย.</th><th class="p-4 w-14 border-b">ก.ค.</th><th class="p-4 w-14 border-b">ส.ค.</th><th class="p-4 w-14 border-b">ก.ย.</th><th class="p-4 w-14 border-b">ต.ค.</th><th class="p-4 w-14 border-b">พ.ย.</th><th class="p-4 w-14 border-b">ธ.ค.</th>
+                                <th class="p-4 w-12 sticky-col-no border-b border-r shadow-sm bg-white">#</th>
+                                <th class="p-4 min-w-[180px] text-left sticky-col-id border-b border-r shadow-sm bg-white">Tool Identity</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ม.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ก.พ.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">มี.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">เม.ย.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">พ.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">มิ.ย.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ก.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ส.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ก.ย.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ต.ค.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">พ.ย.</th>
+                                <th class="p-4 w-14 border-b bg-slate-50">ธ.ค.</th>
                             </tr>
                         </thead>
-                        <tbody id="dashboardBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                        <tbody id="dashboardBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
 
@@ -344,7 +377,7 @@
         </div>
     </div>
 
-    <!-- 🛠️ MODAL TPM RECORD -->
+    <!-- 🛠️ MODAL TPM RECORD (Same as before) -->
     <div id="tpmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div id="tpmModalContent" class="bg-white rounded-t-[40px] sm:rounded-[32px] shadow-2xl w-full max-w-xl overflow-hidden max-h-[95vh] flex flex-col animate-fade-in">
             <div class="px-8 py-6 border-b flex justify-between items-center shrink-0">
@@ -366,11 +399,11 @@
                     
                     <div class="grid grid-cols-2 gap-8 mt-10 pt-8 border-t border-slate-200/60 text-left">
                         <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest">วันที่ดำเนินการ *</label>
+                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest text-left">วันที่ดำเนินการ *</label>
                             <input type="date" id="modalActionDate" required class="w-full bg-transparent border-b-2 border-slate-200 focus:border-blue-600 font-bold text-slate-800 outline-none text-sm pb-1 transition-all">
                         </div>
                         <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest">ผู้รับผิดชอบ *</label>
+                            <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2 tracking-widest text-left">ผู้รับผิดชอบ *</label>
                             <input type="text" id="modalResponsiblePerson" required class="w-full bg-transparent border-b-2 border-slate-200 focus:border-blue-600 font-bold text-slate-800 outline-none text-sm pb-1 transition-all" placeholder="ระบุชื่อ">
                         </div>
                     </div>
@@ -385,11 +418,11 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
                     <div class="bg-blue-50/50 p-6 rounded-[28px] border border-blue-100">
-                        <label class="block text-[10px] font-bold text-blue-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-camera mr-2 text-left"></i> แนบรูปถ่าย</label>
+                        <label class="block text-[10px] font-bold text-blue-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-camera mr-2"></i> แนบรูปถ่าย</label>
                         <input type="file" id="modalImageFile" accept="image/*" class="w-full text-[11px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700">
                     </div>
                     <div class="bg-amber-50/50 p-6 rounded-[28px] border border-amber-100">
-                        <label class="block text-[10px] font-bold text-amber-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-calendar-alt mr-2 text-left"></i> กำหนดรอบถัดไป</label>
+                        <label class="block text-[10px] font-bold text-amber-600 mb-3 uppercase tracking-[0.2em] text-left"><i class="fas fa-calendar-alt mr-2"></i> กำหนดรอบถัดไป</label>
                         <input type="date" id="modalNextPmDate" required class="w-full bg-transparent border-b border-amber-200 font-bold text-sm outline-none text-slate-800">
                     </div>
                 </div>
@@ -420,9 +453,7 @@
                 </div>
                 <button onclick="closeHistory()" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors shadow-sm"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div id="histContent" class="p-8 overflow-y-auto flex-1 bg-white space-y-8 history-timeline">
-                <!-- Content generated by JS -->
-            </div>
+            <div id="histContent" class="p-8 overflow-y-auto flex-1 bg-white space-y-8 history-timeline"></div>
             <div class="p-6 bg-slate-50 border-t"><button onclick="closeHistory()" class="w-full bg-slate-900 text-white py-4.5 rounded-[24px] font-bold shadow-lg hover:bg-black transition-all">ปิดหน้าต่าง</button></div>
         </div>
     </div>
@@ -440,7 +471,7 @@
 
     <script>
         // 🟢 GLOBAL CONFIG
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8Wgw-vpq0eLDpkbyEA9qBn7H2qchRSC0ikjB13UMxYMpGLXOF2nr1PmkeyuDEA0RJ/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw5Asb7DIL28t0GT_YpwqKu-JncI42Ep4g6Fdcfno2k6WWPmFGOsm9JIqi90blvGCN4/exec";
         const MONTH_NAMES_TH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
         const CHECKLIST_ITEMS = [
             { title: "1. ชิ้นงานตัวอย่างสุดท้าย", std: "ไม่มีครีบและไม่มีรอย" },
@@ -599,6 +630,7 @@
             const searchVal = document.getElementById('globalSearch').value.toLowerCase();
             let list = [...rawMoldsList]; if(vFilter) list = list.filter(r => r.vendor === vFilter);
             if(searchVal) list = list.filter(r => r.moldId.toLowerCase().includes(searchVal) || r.partName.toLowerCase().includes(searchVal));
+            
             body.innerHTML = list.map((row, idx) => {
                 const vColor = getVendorColor(row.vendor);
                 let pmInfo = getMonthYearFromValue(row.nextPmDate), plan = parsePmMonths(row.pmMonths), pMonths = plan[dYear] || [];
@@ -610,7 +642,18 @@
                     let iconA = isActualDone ? `<i class="fas fa-check-circle text-emerald-500 text-lg cursor-pointer hover:scale-110 transition-transform" onclick="viewHistory('${row.moldId}')"></i>` : "";
                     return `<td class="border border-slate-100 p-0 text-center"><div class="h-8 border-b border-slate-50 flex items-center justify-center bg-slate-50/20">${iconP}</div><div class="h-10 flex items-center justify-center">${iconA}</div></td>`;
                 }).join('');
-                return `<tr class="hover:bg-slate-50/50 transition"><td class="p-3 font-bold text-slate-300 sticky-col border-r border-slate-100">${idx+1}</td><td class="p-4 sticky-col border-r border-slate-100 shadow-sm bg-white text-left"><h4 class="font-bold text-slate-700 uppercase leading-tight text-xs text-left">${row.partName}</h4><div class="flex items-center gap-2 mt-1.5 text-left"><span class="text-[8px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">${row.moldId}</span><span class="text-[8px] ${vColor.text} font-bold">${row.vendor || '-'}</span></div></td>${cells}</tr>`;
+                
+                return `<tr class="hover:bg-slate-50/50 transition">
+                    <td class="p-3 font-bold text-slate-300 sticky-col-no border-r border-slate-100 bg-white">${idx+1}</td>
+                    <td class="p-4 sticky-col-id border-r border-slate-100 shadow-sm bg-white text-left">
+                        <h4 class="font-bold text-slate-700 uppercase leading-tight text-xs text-left">${row.partName}</h4>
+                        <div class="flex items-center gap-2 mt-1.5 text-left">
+                            <span class="text-[8px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">${row.moldId}</span>
+                            <span class="text-[8px] ${vColor.text} font-bold">${row.vendor || '-'}</span>
+                        </div>
+                    </td>
+                    ${cells}
+                </tr>`;
             }).join('');
             document.getElementById('dashYearTitle').innerText = dYear;
         }
@@ -740,7 +783,6 @@
             let l = []; try { l = JSON.parse(m.pmHistoryLog || "[]"); } catch(e) {}
             if (!l.length && m.lastPmDate) l.push({ date: m.lastPmDate, pic: m.responsiblePerson, details: m.lastPmDetails, checklist: m.pmChecklist, image: m.pmImageUrl });
             
-            // ดึงรูปล่าสุดจาก pmImageUrl มาแสดง กรณีที่ในประวัติ log ลืมบันทึกรูป
             if (l.length > 0 && !l[l.length - 1].image && m.pmImageUrl) {
                 l[l.length - 1].image = m.pmImageUrl;
             }
